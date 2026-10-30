@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PUBG MOBILE 成長ノート</title>
+<!-- アイコン：同じフォルダに icon.png（正方形・180×180以上、512×512推奨）を置くと、タブとホーム画面のアイコンになります -->
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="apple-mobile-web-app-title" content="成長ノート">
+<meta name="theme-color" content="#17365d">
 <style>
 :root{--navy:#17365d;--blue:#4472c4;--light:#f4f8fc;--line:#cfd8e6;--text:#1f2937;--mute:#6b7280;--good:#1e7b34;--bad:#c00000;--orange:#ed7d31;--bg:#eef2f7;--head:#17365d;--surface:#fff;--total:#dbe6f6;--pill:#eef2f7;--pillup:#e3f4e7;--pilldown:#fbe5e5;--hover:#eaf1fb}
 *{box-sizing:border-box}
@@ -86,6 +91,68 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 header select{width:auto;max-width:180px;font-size:13px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:5px 8px}
 header select option{color:#1f2937;background:#fff}
 .arm{color:var(--bad)!important;font-weight:700}
+
+/* ===== スマホ表示（画面幅760px以下）：表をカード表示に ===== */
+@media screen and (max-width:760px){
+ body{font-size:15px}
+ header{padding:10px 12px;gap:8px}
+ header h1{font-size:16px}
+ header .sub,header .spacer{display:none}
+ header button{padding:5px 9px;font-size:12px}
+ header select{max-width:150px}
+ .pl{width:100%}
+ .pl input{width:120px}
+ main{padding:10px 10px 50px}
+ .card{padding:12px;border-radius:8px}
+ nav{padding:0 4px}
+ nav button{padding:11px 12px;font-size:13px}
+ input,select,textarea{font-size:16px}
+ #statTable,#trendTable,#focusTable,#guideTable{font-size:12px}
+ #statTable th,#statTable td,#trendTable th,#trendTable td,#focusTable th,#focusTable td,#guideTable th,#guideTable td{padding:5px 4px}
+ #trendTable th{width:auto!important}
+ #trendTable .pill{white-space:nowrap;padding:2px 7px;font-size:11.5px}
+ #trendTable{table-layout:fixed}
+ #trendTable th:nth-child(1){width:20%!important}
+ #trendTable th:nth-child(2){width:27%!important}
+ #trendTable td{word-break:break-all}
+ .del{padding:8px 12px;font-size:16px}
+ #logTable,#logTable tbody,#logTable tr,#logTable td,
+ #noteTable,#noteTable tbody,#noteTable tr,#noteTable td,
+ #evalTable,#evalTable tbody,#evalTable tr,#evalTable td{display:block}
+ #logTable thead,#noteTable thead,#evalTable thead{display:none}
+ #logTable tbody tr,#noteTable tbody tr,#evalTable tbody tr{display:grid;gap:8px;border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:12px;background:var(--surface)}
+ #logTable td,#noteTable td,#evalTable td{border:0;padding:0;min-width:0}
+ #logTable td::before,#noteTable td::before,#evalTable td::before{content:attr(data-label);display:block;font-size:11px;color:var(--mute);margin-bottom:2px;text-align:left}
+ #logTable td:not([data-label])::before,#noteTable td:not([data-label])::before,#evalTable td:not([data-label])::before{display:none}
+ #logTable td input[type=number],#noteTable td input,#evalTable td select,#logTable td textarea,#noteTable td textarea{width:100%;min-width:0}
+ /* 試合記録 */
+ #logTable tbody tr{grid-template-columns:repeat(6,1fr)}
+ #logTable td:nth-child(1){grid-column:1/4;font-weight:700;color:var(--navy);text-align:left;align-self:center}
+ #logTable td:nth-child(1)::before{content:"試合 ";display:inline;font-size:inherit;color:inherit}
+ #logTable td:nth-child(11){grid-column:4/7;grid-row:1;text-align:right}
+ #logTable td:nth-child(1){grid-row:1}
+ #logTable td:nth-child(2){grid-column:1/-1}
+ #logTable td:nth-child(2) input{display:inline-block;width:calc(50% - 4px);margin-top:0!important}
+ #logTable td:nth-child(3),#logTable td:nth-child(4),#logTable td:nth-child(5){grid-column:span 2}
+ #logTable td:nth-child(6),#logTable td:nth-child(7){grid-column:span 3}
+ #logTable td:nth-child(8),#logTable td:nth-child(9),#logTable td:nth-child(10){grid-column:1/-1}
+ #logTable td input[type=number]{text-align:center}
+ /* プレイ中メモ */
+ #noteTable tbody tr{grid-template-columns:1fr 1fr}
+ #noteTable td:nth-child(n+3){grid-column:1/-1}
+ #noteTable td:nth-child(6){text-align:right}
+ #noteTable td:nth-child(6){grid-row:1;grid-column:2;justify-self:end}
+ #noteTable td:nth-child(1),#noteTable td:nth-child(2){grid-row:2}
+ /* 個人評価 */
+ #evalTable tbody tr{grid-template-columns:repeat(3,1fr)}
+ #evalTable td:nth-child(1){grid-column:1/-1;font-weight:700;color:var(--navy);font-size:14px;text-align:left}
+ #evalTable td:nth-child(2){grid-column:1/-1;font-size:12px;color:var(--mute)}
+ #evalTable td:empty{display:none}
+ #evalTable td.c{text-align:left}
+ #evalTable tr.total{background:var(--total)}
+ #evalTable tr.total td{background:none;text-align:left}
+ #evalTable td.grade{font-size:18px}
+}
 </style>
 </head>
 <body>
@@ -239,6 +306,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const num=v=>{if(v===''||v==null)return null;const n=Number(v);return Number.isFinite(n)?n:null};
 const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
 const fmt=(v,d)=>v==null?'':Number(v).toFixed(d);
+const LAB={logTable:['','日付・時刻','順位','キル','ダメージ','ダウン数','生存時間(分)','良かった判断・行動','改善したい場面・原因','次の試合で意識すること',''],noteTable:['場面/時間','カテゴリ','起きたこと（事実）','原因の仮説','次に試す行動',''],evalTable:['','','初回評価','再評価','変化']};
+function labelCells(id){const L=LAB[id];document.querySelectorAll('#'+id+' tbody tr').forEach(tr=>[...tr.children].forEach((td,i)=>{if(L[i])td.setAttribute('data-label',L[i])}))}
 
 /* ---------- タブ ---------- */
 const TABS=[['log','試合記録'],['growth','成長グラフ'],['eval','個人評価'],['guide','評価基準'],['notes','プレイ中メモ']];
@@ -254,6 +323,7 @@ function renderLog(){
    ${['rank','kill','dmg','down','surv'].map(f=>`<td><input type="number" min="0" step="${f==='surv'?'0.1':'1'}" data-i="${i}" data-f="${f}" value="${esc(m[f])}"></td>`).join('')}
    ${['good','bad','next'].map(f=>`<td><textarea rows="2" data-i="${i}" data-f="${f}">${esc(m[f])}</textarea></td>`).join('')}
    <td class="c"><button class="del" data-del="${i}" title="この行を削除">✕</button></td></tr>`).join('');
+  labelCells('logTable');
 }
 $('#logTable').addEventListener('input',e=>{const t=e.target;if(t.dataset.f!==undefined){S.matches[+t.dataset.i][t.dataset.f]=t.value;save()}});
 $('#logTable').addEventListener('click',e=>{const i=e.target.dataset.del;if(i!==undefined&&twice(e.target)){S.matches.splice(+i,1);renderLog();save()}});
@@ -338,7 +408,7 @@ function renderEval(){
   $('#evalTable').innerHTML='<thead><tr><th>評価項目</th><th style="min-width:300px">評価の観点（チェックポイント）</th><th style="width:90px">初回評価</th><th style="width:90px">再評価</th><th style="width:70px">変化</th></tr></thead><tbody>'+
    ITEMS.map((it,i)=>`<tr><td class="c"><b>${it[0]}</b></td><td>${it[1]}</td><td><select data-i="${i}" data-f="a">${opt(S.scores[i].a)}</select></td><td><select data-i="${i}" data-f="b">${opt(S.scores[i].b)}</select></td><td class="c" id="chg${i}"></td></tr>`).join('')+
    '<tr class="total"><td id="totLab">合計点</td><td></td><td id="totA"></td><td id="totB"></td><td id="totD"></td></tr><tr class="total"><td>平均点</td><td></td><td id="avgA"></td><td id="avgB"></td><td></td></tr><tr class="total"><td>総合評価</td><td></td><td id="grA" class="grade"></td><td id="grB" class="grade"></td><td id="grD"></td></tr></tbody>';
-  renderEvalCalc();
+  labelCells('evalTable');renderEvalCalc();
 }
 function renderEvalCalc(){
   const n=ITEMS.length;
@@ -360,6 +430,7 @@ $('#checkList').innerHTML=CHECKS.map(t=>`<li>${t}</li>`).join('');
 /* ---------- プレイ中メモ ---------- */
 function renderNotes(){
   $('#noteTable tbody').innerHTML=S.notes.map((n,i)=>`<tr>${['when','cat'].map(f=>`<td><input data-i="${i}" data-f="${f}" value="${esc(n[f])}"></td>`).join('')}${['fact','cause','next'].map(f=>`<td><textarea rows="2" data-i="${i}" data-f="${f}">${esc(n[f])}</textarea></td>`).join('')}<td class="c"><button class="del" data-del="${i}">✕</button></td></tr>`).join('');
+  labelCells('noteTable');
 }
 $('#noteTable').addEventListener('input',e=>{const t=e.target;if(t.dataset.f){S.notes[+t.dataset.i][t.dataset.f]=t.value;save()}});
 $('#noteTable').addEventListener('click',e=>{const i=e.target.dataset.del;if(i!==undefined&&twice(e.target)){S.notes.splice(+i,1);renderNotes();save()}});
