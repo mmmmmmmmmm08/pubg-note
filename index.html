@@ -436,7 +436,7 @@ $('#pOk').onclick=pCommit;$('#pNo').onclick=pEditClose;
 $('#pName').addEventListener('keydown',e=>{if(e.key==='Enter')pCommit();if(e.key==='Escape')pEditClose()});
 $('#pDel').onclick=function(){if(!twice(this))return;const id=W.cur;(W.del=W.del||{})[id]=Date.now();W.players=W.players.filter(p=>p.id!==id);W.cur=W.players[0].id;S=curP().data;renderAll();renderPlayers();save(true)};
 /* ===== OneDrive同期 ===== */
-const MS_CLIENT_ID='';
+const MS_CLIENT_ID='5d7fa185-42be-4371-9679-4bcfb01f25f7';
 const OD={scope:'offline_access Files.ReadWrite.AppFolder',auth:'https://login.microsoftonline.com/consumers/oauth2/v2.0/',g:'https://graph.microsoft.com/v1.0/me/drive/special/approot:/growth-note.json'};
 const lsg=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lss=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
