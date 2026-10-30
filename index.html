@@ -154,6 +154,15 @@ header select option{color:#1f2937;background:#fff}
  #evalTable tr.total{background:var(--total)}
  #evalTable tr.total td{background:none;text-align:left}
  #evalTable td.grade{font-size:18px}
+ /* 詳細な個人評価 */
+ #dTable,#dTable tbody,#dTable tr,#dTable td{display:block}
+ #dTable thead{display:none}
+ #dTable tbody tr{display:grid;gap:8px;border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:12px;background:var(--surface)}
+ #dTable td{border:0;padding:0;min-width:0}
+ #dTable td::before{content:attr(data-label);display:block;font-size:11px;color:var(--mute);margin-bottom:2px;text-align:left}
+ #dTable td:not([data-label])::before{display:none}
+ #dTable td input,#dTable td textarea{width:100%;min-width:0}
+ #dTable td.c{text-align:right}
 }
 </style>
 </head>
@@ -232,6 +241,28 @@ header select option{color:#1f2937;background:#fff}
   </div>
 </section>
 
+<!-- 詳細な個人評価 -->
+<section id="s-deval">
+  <div class="card">
+    <h2>詳細な個人評価｜評価項目・観点を自由に入力してコメント</h2>
+    <div class="grid2">
+      <label>プレイヤー名<input id="d_player"></label>
+      <label>評価日<input type="date" id="d_date"></label>
+    </div>
+    <label style="display:block;margin-top:10px">評価の前提<input id="d_premise"></label>
+  </div>
+  <div class="card"><div class="scroll"><table id="dTable"></table></div>
+    <p class="hint">評価項目と評価の観点（チェックポイント）は自由に入力でき、右隣にコメントを書けます。行の追加・削除もできます（削除すると、その行のコメントも消えます）。入力は自動で保存されます。</p>
+    <p><button id="addDRow" class="noprint">＋ 評価項目を追加</button></p></div>
+  <div class="card">
+    <div class="grid2">
+      <label>強み<textarea id="d_strengths" rows="4"></textarea></label>
+      <label>改善ポイント<textarea id="d_improve" rows="4"></textarea></label>
+    </div>
+    <label style="display:block;margin-top:10px">総評<textarea id="d_summary" rows="4"></textarea></label>
+  </div>
+</section>
+
 <!-- 評価基準 -->
 <section id="s-guide">
   <div class="card"><h2>SCORING GUIDE｜評価の目安</h2>
@@ -296,8 +327,9 @@ const blankMatch=()=>({date:'',time:'',rank:'',kill:'',dmg:'',down:'',surv:'',go
 const blankNote=()=>({when:'',cat:'',fact:'',cause:'',next:''});
 let W=loadW();let S=curP().data;
 const ITM=()=>S.items.map(x=>[x.name,x.desc]);
-function fixD(d){if(!Array.isArray(d.items)||!d.items.length)d.items=DEF_ITEMS.map(it=>({name:it[0],desc:it[1]}));if(!Array.isArray(d.scores))d.scores=[];while(d.scores.length<d.items.length)d.scores.push({a:'',b:'',memo:''});d.scores.length=d.items.length;return d}
-function fresh(){return{player:'',date1:'',date2:'',premise:'複数試合のプレイを見て評価。キル数・順位だけで決めず、役割や試合状況も考慮する。',items:DEF_ITEMS.map(it=>({name:it[0],desc:it[1]})),scores:DEF_ITEMS.map(()=>({a:'',b:'',memo:''})),strengths:'',improve:'',summary:'',matches:Array.from({length:20},blankMatch),notes:Array.from({length:10},blankNote)}}
+function fixD(d){if(!d.detail||!Array.isArray(d.detail.rows))d.detail=freshDetail();else d.detail=Object.assign(freshDetail(),d.detail);if(!Array.isArray(d.items)||!d.items.length)d.items=DEF_ITEMS.map(it=>({name:it[0],desc:it[1]}));if(!Array.isArray(d.scores))d.scores=[];while(d.scores.length<d.items.length)d.scores.push({a:'',b:'',memo:''});d.scores.length=d.items.length;return d}
+function fresh(){return{player:'',date1:'',date2:'',premise:'複数試合のプレイを見て評価。キル数・順位だけで決めず、役割や試合状況も考慮する。',items:DEF_ITEMS.map(it=>({name:it[0],desc:it[1]})),scores:DEF_ITEMS.map(()=>({a:'',b:'',memo:''})),strengths:'',improve:'',summary:'',detail:freshDetail(),matches:Array.from({length:20},blankMatch),notes:Array.from({length:10},blankNote)}}
+function freshDetail(){return{player:'',date:'',premise:'',rows:Array.from({length:5},()=>({name:'',desc:'',comment:''})),strengths:'',improve:'',summary:''}}
 function newPid(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
 function curP(){return W.players.find(p=>p.id===W.cur)||W.players[0]}
 function normW(v){if(v&&Array.isArray(v.players)&&v.players.length){v.players.forEach(p=>{p.id=p.id||newPid();p.name=p.name||'プレイヤー';p.u=p.u||0;p.data=fixD(Object.assign(fresh(),p.data||{}))});v.del=v.del||{};if(!v.players.some(p=>p.id===v.cur))v.cur=v.players[0].id;v.v=2;return v}if(v&&v.matches){const id=newPid();return{v:2,cur:id,del:{},players:[{id,name:v.player||'プレイヤー1',u:0,data:fixD(Object.assign(fresh(),v))}]}}return null}
@@ -313,11 +345,11 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const num=v=>{if(v===''||v==null)return null;const n=Number(v);return Number.isFinite(n)?n:null};
 const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
 const fmt=(v,d)=>v==null?'':Number(v).toFixed(d);
-const LAB={logTable:['','日付・時刻','順位','キル','ダメージ','ダウン数','生存時間(分)','良かった判断・行動','改善したい場面・原因','次の試合で意識すること',''],noteTable:['場面/時間','カテゴリ','起きたこと（事実）','原因の仮説','次に試す行動',''],evalTable:['','','初回評価','再評価','変化','メモ']};
+const LAB={logTable:['','日付・時刻','順位','キル','ダメージ','ダウン数','生存時間(分)','良かった判断・行動','改善したい場面・原因','次の試合で意識すること',''],noteTable:['場面/時間','カテゴリ','起きたこと（事実）','原因の仮説','次に試す行動',''],evalTable:['','','初回評価','再評価','変化','メモ'],dTable:['評価項目','評価の観点（チェックポイント）','コメント','']};
 function labelCells(id){const L=LAB[id];document.querySelectorAll('#'+id+' tbody tr').forEach(tr=>[...tr.children].forEach((td,i)=>{if(L[i])td.setAttribute('data-label',L[i])}))}
 
 /* ---------- タブ ---------- */
-const TABS=[['log','試合記録'],['growth','成長グラフ'],['eval','個人評価'],['guide','評価基準'],['notes','プレイ中メモ']];
+const TABS=[['log','試合記録'],['growth','成長グラフ'],['eval','個人評価'],['deval','詳細な個人評価'],['guide','評価基準'],['notes','プレイ中メモ']];
 $('#nav').innerHTML=TABS.map(([k,l])=>`<button data-t="${k}">${l}</button>`).join('');
 function show(k){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===k));document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='s-'+k));if(k==='growth')renderGrowth();if(k==='eval')renderEvalCalc();try{localStorage.setItem(KEY+'-tab',k)}catch(e){}}
 $('#nav').addEventListener('click',e=>{if(e.target.dataset.t)show(e.target.dataset.t)});
@@ -443,6 +475,20 @@ $('#evalTable').addEventListener('input',e=>{const t=e.target;if(t.dataset.it){S
 $('#evalTable').addEventListener('change',e=>{const t=e.target;if(t.tagName==='SELECT'&&t.dataset.f){S.scores[+t.dataset.i][t.dataset.f]=t.value;renderEvalCalc();save()}});
 ['player','date1','date2','premise','strengths','improve','summary'].forEach(k=>$('#'+k).addEventListener('input',e=>{S[k]=e.target.value;save()}));
 
+/* ---------- 詳細な個人評価 ---------- */
+const DF=['player','date','premise','strengths','improve','summary'];
+function renderDetail(){
+  const D=S.detail;
+  DF.forEach(k=>$('#d_'+k).value=D[k]||'');
+  $('#dTable').innerHTML='<thead><tr><th style="min-width:160px">評価項目</th><th style="min-width:300px">評価の観点（チェックポイント）</th><th style="min-width:260px">コメント</th><th style="width:44px"></th></tr></thead><tbody>'+
+   D.rows.map((r,i)=>`<tr><td><input data-i="${i}" data-f="name" value="${esc(r.name)}" maxlength="30" placeholder="評価項目" style="font-weight:700;min-width:120px"></td><td><textarea rows="2" data-i="${i}" data-f="desc" placeholder="評価の観点（チェックポイント）">${esc(r.desc)}</textarea></td><td><textarea rows="2" data-i="${i}" data-f="comment" placeholder="コメント">${esc(r.comment)}</textarea></td><td class="c"><button class="del" data-del="${i}" title="この行を削除">✕</button></td></tr>`).join('')+'</tbody>';
+  labelCells('dTable');
+}
+$('#dTable').addEventListener('input',e=>{const t=e.target;if(t.dataset.f!==undefined){S.detail.rows[+t.dataset.i][t.dataset.f]=t.value;save()}});
+$('#dTable').addEventListener('click',e=>{const i=e.target.dataset.del;if(i===undefined)return;if(S.detail.rows.length<=1){toast('行は最低1つ必要です');return}if(twice(e.target)){S.detail.rows.splice(+i,1);renderDetail();save()}});
+$('#addDRow').onclick=()=>{S.detail.rows.push({name:'',desc:'',comment:''});renderDetail();save()};
+DF.forEach(k=>$('#d_'+k).addEventListener('input',e=>{S.detail[k]=e.target.value;save()}));
+
 /* ---------- 評価基準 ---------- */
 $('#guideTable').innerHTML='<thead><tr><th style="width:70px">点数</th><th style="width:140px">評価</th><th>目安</th></tr></thead><tbody>'+GUIDE.map(g=>`<tr><td class="c"><b>${g[0]}</b></td><td class="c">${g[1]}</td><td>${g[2]}</td></tr>`).join('')+'</tbody>';
 $('#tipList').innerHTML=TIPS.map(t=>`<li>${t}</li>`).join('');
@@ -506,6 +552,15 @@ function buildReport(){
     return`<tr><td><b>${esc(it[0])}</b></td><td style="white-space:pre-wrap">${esc(it[1])}</td><td class="c">${a??''}</td><td class="c">${b??''}</td><td class="c ${d>0?'up':d<0?'down':''}">${d==null?'':d>0?'+'+d:d}</td><td style="white-space:pre-wrap">${esc(S.scores[i].memo||'')}</td></tr>`}).join('');
   const mrows=S.matches.map((m,i)=>[i,m]).filter(([i,m])=>Object.values(m).some(v=>String(v).trim()!==''));
   const nrows=S.notes.filter(n=>Object.values(n).some(v=>String(v).trim()!==''));
+  const D=S.detail,drows=D.rows.filter(r=>[r.name,r.desc,r.comment].some(v=>String(v).trim()!==''));
+  const hasD=drows.length||[D.player,D.date,D.premise,D.strengths,D.improve,D.summary].some(v=>String(v).trim()!=='');
+  const detailHtml=hasD?`<h2>1-2. 詳細な個人評価</h2>
+  <div class="meta">プレイヤー：<b>${esc(D.player||'（未入力）')}</b>　／　評価日：${esc(D.date||'―')}</div>
+  ${D.premise?`<div class="meta">評価の前提：${esc(D.premise)}</div>`:''}
+  ${drows.length?`<table><thead><tr><th style="width:110px">評価項目</th><th>評価の観点</th><th style="width:36%">コメント</th></tr></thead><tbody>`+drows.map(r=>`<tr><td><b>${esc(r.name)}</b></td><td style="white-space:pre-wrap">${esc(r.desc)}</td><td style="white-space:pre-wrap">${esc(r.comment)}</td></tr>`).join('')+'</tbody></table>':''}
+  <h3>強み</h3><div class="box">${txt(D.strengths)}</div>
+  <h3>改善ポイント</h3><div class="box">${txt(D.improve)}</div>
+  <h3>総評</h3><div class="box">${txt(D.summary)}</div>`:'';
   const R=$('#report');
   R.innerHTML=`
   <h1>PUBG MOBILE 成長レポート</h1>
@@ -520,6 +575,7 @@ function buildReport(){
   <h3>強み</h3><div class="box">${txt(S.strengths)}</div>
   <h3>改善ポイント</h3><div class="box">${txt(S.improve)}</div>
   <h3>総評</h3><div class="box">${txt(S.summary)}</div>
+  ${detailHtml}
 
   <div class="pb"></div>
   <h2>2. 試合の傾向まとめ</h2>
@@ -585,7 +641,7 @@ $('#cidSave').onclick=()=>{const v=$('#cidIn').value.trim();if(/^[0-9a-f]{8}-[0-
 $('#odLogin').onclick=odLogin;$('#odNow').onclick=()=>sync();
 $('#odLogout').onclick=()=>{lsd(KEY+'-tok');lsd(KEY+'-etag');ETAG='';setMsg('連携を解除しました（OneDrive上のデータは残ります）')};
 async function odInit(){await odCallback();showState();if(tok()){sync();setInterval(()=>{if(!document.hidden)sync()},60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});window.addEventListener('pagehide',()=>{if(dirty)sync()})}}
-function renderAll(){renderLog();renderEval();renderNotes();renderGrowth()}
+function renderAll(){renderLog();renderEval();renderDetail();renderNotes();renderGrowth()}
 async function boot(){
   renderPlayers();odInit();
   renderAll();
