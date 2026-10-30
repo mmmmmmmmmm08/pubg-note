@@ -164,7 +164,7 @@ header select option{color:#1f2937;background:#fff}
   <button id="bSync">☁ OneDrive連携</button>
   <button id="bBackup">💾 バックアップ保存</button>
   <button id="bRestore">📂 読み込み</button>
-  <button id="bMatchImp" title="バックアップファイルから「試合ごとの記録」だけを取り込みます（個人評価・メモはそのまま）">📥 試合記録だけ読み込み</button>
+  <button id="bMatchImp" title="バックアップファイルの「試合ごとの記録」を、今の記録の後ろに追加します（登録済みの試合は重複しません。個人評価・メモはそのまま）">📥 試合記録だけ読み込み</button>
   <input type="file" id="fileMatch" accept=".json" style="display:none">
   <button id="bPdf">📑 PDF出力</button>
   <button id="bCsv">📄 試合記録をCSV出力</button>
@@ -457,12 +457,19 @@ $('#fileMatch').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)r
     src=v.players.find(p=>p.name===curP().name);
     if(!src){const list=v.players.map((p,i)=>(i+1)+': '+p.name).join('\n');const a=prompt('どのプレイヤーの試合記録を読み込みますか？番号を入力してください\n'+list,'1');if(a===null)return;src=v.players[(parseInt(a,10)||0)-1];if(!src)throw 0}
   }
-  const ms=(src.data.matches||[]).map(m=>Object.assign(blankMatch(),m));
-  const cnt=ms.filter(m=>Object.values(m).some(x=>String(x).trim()!=='')).length;
-  const cur=S.matches.filter(m=>Object.values(m).some(x=>String(x).trim()!=='')).length;
-  if(!confirm(`「${curP().name}」の試合記録を、読み込んだファイル（${src.name}・${cnt}試合）の内容に置き換えます。\n現在の試合記録：${cur}試合\n\n個人評価・プレイ中メモ・その他は変更されません。よろしいですか？`))return;
-  S.matches=ms;
-  renderLog();renderGrowth();save();toast('試合記録だけ更新しました');
+  const filled=m=>Object.values(m).some(x=>String(x).trim()!=='');
+  const key=m=>[m.date,m.time,m.rank,m.kill,m.dmg,m.down,m.surv].map(x=>String(x??'').trim()).join('|')+(String(m.date||'').trim()?'':'|'+[m.good,m.bad,m.next].join('|'));
+  const incoming=(src.data.matches||[]).map(m=>Object.assign(blankMatch(),m)).filter(filled);
+  // 末尾の空行を除いた既存の記録
+  const base=S.matches.slice();while(base.length&&!filled(base[base.length-1]))base.pop();
+  const have=new Set(base.filter(filled).map(key));
+  const add=[];let skip=0;
+  incoming.forEach(m=>{const k=key(m);if(have.has(k)){skip++;return}have.add(k);add.push(m)});
+  if(!add.length){toast('追加できる新しい試合がありませんでした（'+skip+'試合は登録済み）');return}
+  if(!confirm(`「${curP().name}」の試合記録の末尾に、読み込んだファイル（${src.name}）の新しい試合を ${add.length} 件追加します。\n登録済みと同じ内容の ${skip} 件はスキップします。\n現在の試合記録：${base.filter(filled).length}試合\n\n既存の試合・個人評価・プレイ中メモは変更されません。よろしいですか？`))return;
+  const all=base.concat(add);while(all.length<20)all.push(blankMatch());
+  S.matches=all;
+  renderLog();renderGrowth();save();toast(add.length+'試合を追加しました');
 }catch(x){toast('このファイルは読み込めませんでした')}};r.readAsText(f)};
 $('#bCsv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['試合#','日付','時刻','順位','キル','ダメージ','ダウン数','生存時間(分)','良かった判断・行動','改善したい場面・原因','次の試合で意識すること']].concat(S.matches.map((m,i)=>[i+1,m.date,m.time||'',m.rank,m.kill,m.dmg,m.down,m.surv,m.good,m.bad,m.next]));download('試合ごとの記録_'+curP().name+'.csv','﻿'+rows.map(r=>r.map(q).join(',')).join('\r\n'),'text/csv')};
 $('#bSample').onclick=()=>{if(!twice($('#bSample')))return;
