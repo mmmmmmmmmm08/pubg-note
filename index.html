@@ -117,7 +117,7 @@ header select option{color:#1f2937;background:#fff}
     <h2>MATCH LOG｜試合ごとの記録</h2>
     <p class="hint">結果だけで評価せず、ミスの原因・良かった判断・次に試すことも書き残す。数字は上から順に、空行を作らずに入力すると傾向が正確に出ます。入力は自動で保存されます。</p>
     <div class="scroll"><table id="logTable"><thead><tr>
-      <th>#</th><th>日付</th><th>順位</th><th>キル</th><th>ダメージ</th><th>ダウン数</th><th>生存時間(分)</th>
+      <th>#</th><th style="min-width:140px">日付・時刻</th><th>順位</th><th>キル</th><th>ダメージ</th><th>ダウン数</th><th>生存時間(分)</th>
       <th style="min-width:200px">良かった判断・行動</th><th style="min-width:200px">改善したい場面・原因</th><th style="min-width:200px">次の試合で意識すること</th><th></th>
     </tr></thead><tbody></tbody></table></div>
     <p><button id="addMatch" class="noprint">＋ 試合を追加</button></p>
@@ -220,7 +220,7 @@ const METRICS=[
  {k:'surv',label:'生存時間（分）',lowGood:false,dec:1,unit:'分',tip:'終盤まで残れているか。安置移動・ポジション・判断力を確認'},
 ];
 const KEY='pubg-growth-note-v1';
-const blankMatch=()=>({date:'',rank:'',kill:'',dmg:'',down:'',surv:'',good:'',bad:'',next:''});
+const blankMatch=()=>({date:'',time:'',rank:'',kill:'',dmg:'',down:'',surv:'',good:'',bad:'',next:''});
 const blankNote=()=>({when:'',cat:'',fact:'',cause:'',next:''});
 let W=loadW();let S=curP().data;
 function fresh(){return{player:'',date1:'',date2:'',premise:'複数試合のプレイを見て評価。キル数・順位だけで決めず、役割や試合状況も考慮する。',scores:ITEMS.map(()=>({a:'',b:''})),strengths:'',improve:'',summary:'',matches:Array.from({length:20},blankMatch),notes:Array.from({length:10},blankNote)}}
@@ -250,7 +250,7 @@ $('#nav').addEventListener('click',e=>{if(e.target.dataset.t)show(e.target.datas
 function renderLog(){
   $('#logTable tbody').innerHTML=S.matches.map((m,i)=>`<tr>
    <td class="c">${i+1}</td>
-   <td><input type="date" data-i="${i}" data-f="date" value="${esc(m.date)}"></td>
+   <td><input type="date" data-i="${i}" data-f="date" value="${esc(m.date)}"><input type="time" data-i="${i}" data-f="time" value="${esc(m.time||'')}" style="margin-top:4px"></td>
    ${['rank','kill','dmg','down','surv'].map(f=>`<td><input type="number" min="0" step="${f==='surv'?'0.1':'1'}" data-i="${i}" data-f="${f}" value="${esc(m[f])}"></td>`).join('')}
    ${['good','bad','next'].map(f=>`<td><textarea rows="2" data-i="${i}" data-f="${f}">${esc(m[f])}</textarea></td>`).join('')}
    <td class="c"><button class="del" data-del="${i}" title="この行を削除">✕</button></td></tr>`).join('');
@@ -370,10 +370,10 @@ function download(name,text,type){const a=document.createElement('a');a.href=URL
 $('#bBackup').onclick=()=>{curP().data=S;download(`PUBG成長ノート_${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(W,null,1),'application/json')};
 $('#bRestore').onclick=()=>$('#file').click();
 $('#file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const v=normW(JSON.parse(r.result));if(!v)throw 0;curP().data=S;const names=new Set(W.players.map(p=>p.name));v.players.forEach(p=>{let n=p.name,k=2;if(names.has(n))n=p.name+'（取込）';while(names.has(n))n=p.name+'（取込'+(k++)+'）';names.add(n);W.players.push({id:newPid(),name:n,u:Date.now(),data:p.data})});W.cur=W.players[W.players.length-v.players.length].id;S=curP().data;renderAll();renderPlayers();save();toast('読み込みました（新しいプレイヤーとして追加）')}catch(x){toast('このファイルは読み込めませんでした')}};r.readAsText(f);e.target.value=''};
-$('#bCsv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['試合#','日付','順位','キル','ダメージ','ダウン数','生存時間(分)','良かった判断・行動','改善したい場面・原因','次の試合で意識すること']].concat(S.matches.map((m,i)=>[i+1,m.date,m.rank,m.kill,m.dmg,m.down,m.surv,m.good,m.bad,m.next]));download('試合ごとの記録_'+curP().name+'.csv','﻿'+rows.map(r=>r.map(q).join(',')).join('\r\n'),'text/csv')};
+$('#bCsv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['試合#','日付','時刻','順位','キル','ダメージ','ダウン数','生存時間(分)','良かった判断・行動','改善したい場面・原因','次の試合で意識すること']].concat(S.matches.map((m,i)=>[i+1,m.date,m.time||'',m.rank,m.kill,m.dmg,m.down,m.surv,m.good,m.bad,m.next]));download('試合ごとの記録_'+curP().name+'.csv','﻿'+rows.map(r=>r.map(q).join(',')).join('\r\n'),'text/csv')};
 $('#bSample').onclick=()=>{if(!twice($('#bSample')))return;
   let seed=7;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;const d=new Date();d.setDate(d.getDate()-30);
-  S=fresh();S.matches=Array.from({length:14},(_,i)=>{const t=new Date(d);t.setDate(d.getDate()+i*2);return{date:t.toISOString().slice(0,10),rank:String(Math.max(1,Math.round(22-i*1.2+rnd()*14))),kill:String(Math.round(rnd()*4+i/4)),dmg:String(Math.round(150+rnd()*350+i*25)),down:String(Math.round(rnd()*2.6)),surv:(8+rnd()*8+i*.5).toFixed(1),good:i%3===0?'アンチ前に高所を確保できた':'',bad:i%4===0?'車を止める位置が遠く、突っ込みで先に撃たれた':'',next:''}});
+  S=fresh();S.matches=Array.from({length:14},(_,i)=>{const t=new Date(d);t.setDate(d.getDate()+i*2);return{date:t.toISOString().slice(0,10),time:['19:30','21:00','22:15'][i%3],rank:String(Math.max(1,Math.round(22-i*1.2+rnd()*14))),kill:String(Math.round(rnd()*4+i/4)),dmg:String(Math.round(150+rnd()*350+i*25)),down:String(Math.round(rnd()*2.6)),surv:(8+rnd()*8+i*.5).toFixed(1),good:i%3===0?'アンチ前に高所を確保できた':'',bad:i%4===0?'車を止める位置が遠く、突っ込みで先に撃たれた':'',next:''}});
   S.scores=ITEMS.map(()=>({a:String(3+Math.floor(rnd()*4)),b:String(4+Math.floor(rnd()*5))}));S.player='サンプル';renderAll();save()};
 
 
@@ -415,8 +415,8 @@ function buildReport(){
 
   <div class="land pb">
    <h2>4. 試合ごとの記録（入力のある試合 ${mrows.length}件）</h2>
-   ${mrows.length?`<table><thead><tr><th>#</th><th>日付</th><th>順位</th><th>キル</th><th>ダメージ</th><th>ダウン</th><th>生存(分)</th><th>良かった判断・行動</th><th>改善したい場面・原因</th><th>次の試合で意識すること</th></tr></thead><tbody>`+
-     mrows.map(([i,m])=>`<tr><td class="c">${i+1}</td><td class="c">${esc(m.date)}</td><td class="c">${esc(m.rank)}</td><td class="c">${esc(m.kill)}</td><td class="c">${esc(m.dmg)}</td><td class="c">${esc(m.down)}</td><td class="c">${esc(m.surv)}</td><td>${esc(m.good)}</td><td>${esc(m.bad)}</td><td>${esc(m.next)}</td></tr>`).join('')+'</tbody></table>':'<p class="empty">記録がありません。</p>'}
+   ${mrows.length?`<table><thead><tr><th>#</th><th>日付・時刻</th><th>順位</th><th>キル</th><th>ダメージ</th><th>ダウン</th><th>生存(分)</th><th>良かった判断・行動</th><th>改善したい場面・原因</th><th>次の試合で意識すること</th></tr></thead><tbody>`+
+     mrows.map(([i,m])=>`<tr><td class="c">${i+1}</td><td class="c">${esc(m.date)}${m.time?'<br>'+esc(m.time):''}</td><td class="c">${esc(m.rank)}</td><td class="c">${esc(m.kill)}</td><td class="c">${esc(m.dmg)}</td><td class="c">${esc(m.down)}</td><td class="c">${esc(m.surv)}</td><td>${esc(m.good)}</td><td>${esc(m.bad)}</td><td>${esc(m.next)}</td></tr>`).join('')+'</tbody></table>':'<p class="empty">記録がありません。</p>'}
    ${nrows.length?`<h2>5. プレイ中メモ</h2><table><thead><tr><th>場面/時間</th><th>カテゴリ</th><th>起きたこと（事実）</th><th>原因の仮説</th><th>次に試す行動</th></tr></thead><tbody>`+nrows.map(n=>`<tr><td>${esc(n.when)}</td><td>${esc(n.cat)}</td><td>${esc(n.fact)}</td><td>${esc(n.cause)}</td><td>${esc(n.next)}</td></tr>`).join('')+'</tbody></table>':''}
   </div>`;
 }
