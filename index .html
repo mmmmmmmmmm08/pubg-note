@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PUBG MOBILE 成長ノート</title>
+<style>
+:root{--navy:#17365d;--blue:#4472c4;--light:#f4f8fc;--line:#cfd8e6;--text:#1f2937;--mute:#6b7280;--good:#1e7b34;--bad:#c00000;--orange:#ed7d31;--bg:#eef2f7;--head:#17365d;--surface:#fff;--total:#dbe6f6;--pill:#eef2f7;--pillup:#e3f4e7;--pilldown:#fbe5e5;--hover:#eaf1fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Yu Gothic UI","Yu Gothic","Meiryo",sans-serif;font-size:14px}
+header{background:var(--head);color:#fff;padding:14px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.02em}
+header .sub{font-size:12px;opacity:.8}
+header .spacer{flex:1}
+button,.btn{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:6px;padding:6px 12px}
+button:hover{background:var(--hover)}
+header button{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.35);font-size:12px;padding:5px 10px}
+header button:hover{background:rgba(255,255,255,.25)}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);display:flex;gap:2px;padding:0 12px;overflow-x:auto}
+nav button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:12px 16px;font-weight:600;color:var(--mute);white-space:nowrap}
+nav button.on{color:var(--navy);border-bottom-color:var(--blue)}
+main{max-width:1080px;margin:0 auto;padding:18px 16px 60px}
+section{display:none}section.on{display:block}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+h2{font-size:16px;margin:0 0 10px;color:var(--navy)}
+.hint{color:var(--mute);font-size:12px;margin:4px 0 10px}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid var(--line);padding:6px 8px;vertical-align:middle}
+th{background:var(--blue);color:#fff;font-weight:600;font-size:12.5px;text-align:center}
+tbody tr:nth-child(even){background:var(--light)}
+td.c{text-align:center}
+input,select,textarea{font:inherit;color:inherit;border:1px solid var(--line);border-radius:5px;padding:5px 7px;background:var(--surface);width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid #9db9e8;border-color:var(--blue)}
+td input[type=number]{text-align:center;min-width:64px}
+textarea{resize:vertical;min-height:44px}
+.scroll{overflow-x:auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.up{color:var(--good);font-weight:700}.down{color:var(--bad);font-weight:700}.flat{color:var(--mute);font-weight:700}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:700;font-size:12.5px;background:var(--pill)}
+.pill.up{background:var(--pillup)}.pill.down{background:var(--pilldown)}
+.sec{background:var(--head);color:#fff;border-radius:8px;padding:9px 14px;font-weight:700;margin:18px 0 10px}
+.chartbox{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:14px}
+.chartbox h3{margin:2px 6px 4px;font-size:14px;color:var(--navy)}
+svg text{font-family:inherit}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:0 6px 4px}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid;vertical-align:middle;margin-right:5px}
+.total td{background:var(--total);font-weight:700;text-align:center}
+.grade{font-size:20px;font-weight:800;color:var(--navy)}
+.del{border:0;background:none;color:#9aa4b2;padding:2px 6px}.del:hover{color:var(--bad);background:none}
+#toast{position:fixed;right:16px;bottom:16px;background:#111c;color:#fff;border-radius:8px;padding:8px 14px;font-size:12px;opacity:0;transition:.3s;pointer-events:none}
+#toast.on{opacity:1}
+ul.tips{margin:6px 0 0;padding-left:20px;line-height:1.9}
+#report{display:none}
+@page{size:A4;margin:12mm}
+@page land{size:A4 landscape;margin:10mm}
+@media print{
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ body{background:var(--surface);font-size:11px}
+ header,nav,main,#toast{display:none!important}
+ #report{display:block}
+ #report h1{font-size:20px;color:var(--navy);margin:0 0 2px}
+ #report h2{font-size:14px;background:var(--head);color:#fff;padding:5px 10px;border-radius:4px;margin:16px 0 8px;break-after:avoid}
+ #report h3{font-size:12px;color:var(--navy);margin:10px 0 4px;break-after:avoid}
+ #report .meta{color:var(--mute);font-size:11px;margin-bottom:8px}
+ #report table{font-size:10.5px;break-inside:auto}
+ #report tr{break-inside:avoid}
+ #report th,#report td{padding:3px 5px}
+ #report .pb{break-before:page}
+ #report .land{page:land}
+ #report .land table{font-size:9.5px}
+ #report .chartbox{break-inside:avoid;padding:4px 8px;margin-bottom:8px;border-radius:0}
+ #report .chartbox svg{max-height:62mm}
+ #report .box{border:1px solid var(--line);padding:6px 10px;margin:4px 0;white-space:pre-wrap;min-height:30px}
+ #report .grid2{grid-template-columns:1fr 1fr}
+ #report .empty{color:var(--mute)}
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e141d;--surface:#192231;--text:#e6eaf0;--mute:#9aa4b2;--line:#2c3a50;--light:#141d2b;--navy:#9ec1ff;--good:#5fd07a;--bad:#ff7b7b;--total:#24344f;--pill:#223046;--pillup:#17331f;--pilldown:#3a1d1d;--hover:#22314a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e141d;--surface:#192231;--text:#e6eaf0;--mute:#9aa4b2;--line:#2c3a50;--light:#141d2b;--navy:#9ec1ff;--good:#5fd07a;--bad:#ff7b7b;--total:#24344f;--pill:#223046;--pillup:#17331f;--pilldown:#3a1d1d;--hover:#22314a;color-scheme:dark}
+@media print{:root:not([data-theme="light"]),:root[data-theme="dark"]{--bg:#fff;--surface:#fff;--text:#1f2937;--mute:#6b7280;--line:#cfd8e6;--light:#f4f8fc;--navy:#17365d;--good:#1e7b34;--bad:#c00000;--total:#dbe6f6;--pill:#eef2f7;--pillup:#e3f4e7;--pilldown:#fbe5e5;--hover:#eaf1fb;color-scheme:light}}
+.pl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pl input{width:130px;padding:4px 7px;color:#1f2937;background:#fff}
+header select{width:auto;max-width:180px;font-size:13px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:5px 8px}
+header select option{color:#1f2937;background:#fff}
+.arm{color:var(--bad)!important;font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>PUBG MOBILE 成長ノート</h1><div class="sub">試合の記録 → 平均・推移・傾向を自動で表示（<span id="subtxt">データはこの端末に保存。☁OneDrive連携で端末間を自動同期</span>）</div></div>
+  <div class="pl"><select id="pSel" title="プレイヤー切替"></select><button id="pAdd">＋追加</button><button id="pRen">名前変更</button><button id="pDel">削除</button><span id="pEdit" style="display:none"><input id="pName" maxlength="20" placeholder="プレイヤー名"> <button id="pOk">OK</button><button id="pNo">×</button></span></div>
+  <div class="spacer"></div>
+  <button id="bSync">☁ OneDrive連携</button>
+  <button id="bBackup">💾 バックアップ保存</button>
+  <button id="bRestore">📂 読み込み</button>
+  <button id="bPdf">📑 PDF出力</button>
+  <button id="bCsv">📄 試合記録をCSV出力</button>
+  <button id="bSample">サンプル</button>
+  <input type="file" id="file" accept=".json" style="display:none">
+</header>
+<nav id="nav"></nav>
+<main>
+<div id="syncPanel" class="card" style="display:none">
+  <h2>OneDrive連携（PC・iPhoneの自動同期）</h2>
+  <p class="hint" id="syncState"></p>
+  <div id="cidRow" style="display:none;margin-bottom:8px"><input id="cidIn" placeholder="Azureで登録したアプリの「クライアントID」" style="max-width:420px"> <button id="cidSave">保存</button></div>
+  <p class="hint">Azureの「リダイレクトURI」に登録する値：<b id="ruri"></b></p>
+  <button id="odLogin">OneDriveにログイン</button> <button id="odNow">今すぐ同期</button> <button id="odLogout">連携を解除</button>
+</div>
+
+<!-- 試合記録 -->
+<section id="s-log">
+  <div class="card">
+    <h2>MATCH LOG｜試合ごとの記録</h2>
+    <p class="hint">結果だけで評価せず、ミスの原因・良かった判断・次に試すことも書き残す。数字は上から順に、空行を作らずに入力すると傾向が正確に出ます。入力は自動で保存されます。</p>
+    <div class="scroll"><table id="logTable"><thead><tr>
+      <th>#</th><th style="min-width:140px">日付・時刻</th><th>順位</th><th>キル</th><th>ダメージ</th><th>ダウン数</th><th>生存時間(分)</th>
+      <th style="min-width:200px">良かった判断・行動</th><th style="min-width:200px">改善したい場面・原因</th><th style="min-width:200px">次の試合で意識すること</th><th></th>
+    </tr></thead><tbody></tbody></table></div>
+    <p><button id="addMatch" class="noprint">＋ 試合を追加</button></p>
+  </div>
+</section>
+
+<!-- 成長グラフ -->
+<section id="s-growth">
+  <div class="card"><h2>通算・直近の平均</h2>
+    <div class="scroll"><table id="statTable"></table></div>
+    <p class="hint">直近−通算：キル・ダメージ・生存時間は＋、順位・ダウン数は−なら調子が上向き（緑）。</p>
+  </div>
+  <div class="sec">最近の傾向（自動判定）｜直近5試合 と 通算平均 の比較</div>
+  <div class="card"><div class="scroll"><table id="trendTable"></table></div></div>
+  <div class="sec">評価シートからの重点｜評価基準（点数→評価・目安）</div>
+  <div class="card"><p class="hint">「個人評価」の最新の点数（再評価があれば再評価、なければ初回）をもとに表示。重点課題は点数の低い順。評価基準④に沿って、次回は1〜3個に絞って取り組む。</p>
+    <div class="scroll"><table id="focusTable"></table></div></div>
+  <div class="sec">推移グラフ（折れ線）</div>
+  <div id="charts"></div>
+</section>
+
+<!-- 個人評価 -->
+<section id="s-eval">
+  <div class="card">
+    <h2>個人プレイヤー評価｜初回評価と再評価で成長を比較</h2>
+    <div class="grid2">
+      <label>プレイヤー名<input id="player"></label>
+      <div class="grid2"><label>初回評価日<input type="date" id="date1"></label><label>再評価日<input type="date" id="date2"></label></div>
+    </div>
+    <label style="display:block;margin-top:10px">評価の前提<input id="premise"></label>
+  </div>
+  <div class="card"><div class="scroll"><table id="evalTable"></table></div>
+    <p class="hint">点数は1〜10。未評価なら空欄のままでOK。総合評価は全項目に点数が入ると出ます（平均 9以上:S／8:A／7:B／6:C／未満:D）。</p></div>
+  <div class="card">
+    <div class="grid2">
+      <label>強み<textarea id="strengths" rows="4"></textarea></label>
+      <label>改善ポイント<textarea id="improve" rows="4"></textarea></label>
+    </div>
+    <label style="display:block;margin-top:10px">総評<textarea id="summary" rows="4"></textarea></label>
+  </div>
+</section>
+
+<!-- 評価基準 -->
+<section id="s-guide">
+  <div class="card"><h2>SCORING GUIDE｜評価の目安</h2>
+    <p class="hint">点数は厳密に。評価は複数試合の行動と具体的な場面を根拠にする。</p>
+    <div class="scroll"><table id="guideTable"></table></div></div>
+  <div class="card"><h2>フィードバックのコツ</h2><ul class="tips" id="tipList"></ul></div>
+  <div class="card"><h2>観点別チェックポイント（評価時に確認する具体的な場面）</h2><ul class="tips" id="checkList"></ul></div>
+</section>
+
+<!-- プレイ中メモ -->
+<section id="s-notes">
+  <div class="card"><h2>LIVE REVIEW｜一緒にプレイしながらの観察メモ</h2>
+    <p class="hint">プレイ中は短いメモだけ残し、試合後に評価へ反映。感覚だけでなく、実際の場面を根拠にする。</p>
+    <div class="scroll"><table id="noteTable"><thead><tr><th>場面/時間</th><th>カテゴリ</th><th style="min-width:220px">起きたこと（事実）</th><th style="min-width:200px">原因の仮説</th><th style="min-width:200px">次に試す行動</th><th></th></tr></thead><tbody></tbody></table></div>
+    <p><button id="addNote" class="noprint">＋ 行を追加</button></p></div>
+</section>
+</main>
+<div id="report"></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ---------- 定義 ---------- */
+const ITEMS=[
+ ['近距離戦','撃ち合いの勝率、初弾・追いエイム、遮蔽物の使い方'],
+ ['中距離戦','リコイル、敵の見つけやすさ、撃つ・撃たないの判断'],
+ ['遠距離戦','遠距離武器の命中、覗く時間、位置バレへの意識'],
+ ['エイム精度（頭中心）','敵を撃つ時に、エイムを頭中心に合わせられているか（距離・武器を問わず）'],
+ ['サポート','カバー、蘇生、味方が撃たれた時の対応。味方を起こす際、よりリスクの少ない場所で起こせているか'],
+ ['投擲物','スモーク、グレネード、モロトフの使い分け。味方がダウンした時、スモークを適切な位置に炊けているか'],
+ ['車両・運転','安全な移動、車を遮蔽物にする判断。突っ込む時にどこへ車を止め、自分が優位な状況を作って戦えているか'],
+ ['報告・連携','敵の位置・人数・動きの報告、ピン。正確な情報を共有できているか'],
+ ['立ち回り・ポジション','安置移動、遮蔽物、高所、射線管理'],
+ ['有利ポジション取り','アンチが決まった時、有利な場所を素早く見つけてその位置に入れているか。常に有利な位置から攻撃できているか'],
+ ['判断力','戦う・引く判断、漁夫、人数差。それぞれの状況に応じた適切な状況判断ができているか'],
+ ['不利状況での対応力','確実に不利な状態でも、自分のPSをしっかり発揮して打ち勝てているか'],
+ ['生存・安定感','孤立や無理なダウンの少なさ、終盤までの生存'],
+];
+const GUIDE=[
+ [10,'非常に高水準','非常に高いレベルで安定しており、チームの強みになっている'],
+ [9,'大きな強み','高い水準で安定しており、強みとしてチームに貢献している'],
+ [8,'優秀','高いレベルでできており、細かい改善でさらに伸びる'],
+ [7,'良好','基本ができており、実戦でも十分に機能している'],
+ [6,'おおむね安定','概ねできているが、場面によってミスが出る'],
+ [5,'平均・波あり','できる時とできない時があり、安定感を高めたい'],
+ [4,'課題あり','ミスが目立ち、明確な改善が必要'],
+ [3,'苦手','チームに不利を与える場面が多く、基礎から見直したい'],
+ [2,'大きな課題','基本動作や判断の見直しが必要'],
+ [1,'要改善','現状ではほとんど機能しておらず、優先的な練習が必要'],
+];
+const TIPS=['① クラシックの複数試合を見て評価。初動・中盤・終盤や、人数差などの状況も考慮する。','② 「弱い」で終わらせず、実際に起きた場面を根拠にする。','③ 原因は決めつけない。感度変更の前にエイム、距離、武器、遮蔽物、判断を確認する。','④ 次回の重点課題は1〜3個に絞り、本人が実行できる行動にする。','⑤ キル数・ダメージ・順位だけで実力を断定しない。連携や生存、判断も見る。'];
+const CHECKS=['情報共有：敵の位置・人数・動きを正確に伝えられているか','状況判断：それぞれの状況（人数差・安置・残り時間）に応じた適切な判断ができているか','エイム：敵を撃つ時に、エイムを頭中心に合わせられているか','車両戦闘：車で突っ込む時、どこに車を止め、どう自分が優位な状況を作って戦っているか','スモーク：味方がダウンした時、適切な位置にスモークを炊けているか','アンチ：アンチが決まった時、有利な場所を素早く見つけてそのポジションに入れているか','攻撃位置：常に有利な位置から相手に攻撃できているか','蘇生：味方を起こす際、よりリスクの少ない場所で起こせているか','逆境対応：自分が確実に不利な状態でも、しっかり自分のPSを発揮して打ち勝てているか'];
+const METRICS=[
+ {k:'rank',label:'順位',lowGood:true,dec:1,unit:'位',tip:'順位は最終結果。位置取り・判断の項目と合わせて見る'},
+ {k:'kill',label:'キル',lowGood:false,dec:1,unit:'キル',tip:'キル数だけで判断せず、エイム（頭中心）や有利位置も確認'},
+ {k:'dmg',label:'ダメージ',lowGood:false,dec:0,unit:'ダメージ',tip:'撃ち合いの質の目安。近・中・遠距離の点数と見比べる'},
+ {k:'down',label:'ダウン数',lowGood:true,dec:1,unit:'回',tip:'無理なダウンが減っているか。生存・安定感、不利状況の対応を確認'},
+ {k:'surv',label:'生存時間（分）',lowGood:false,dec:1,unit:'分',tip:'終盤まで残れているか。安置移動・ポジション・判断力を確認'},
+];
+const KEY='pubg-growth-note-v1';
+const blankMatch=()=>({date:'',time:'',rank:'',kill:'',dmg:'',down:'',surv:'',good:'',bad:'',next:''});
+const blankNote=()=>({when:'',cat:'',fact:'',cause:'',next:''});
+let W=loadW();let S=curP().data;
+function fresh(){return{player:'',date1:'',date2:'',premise:'複数試合のプレイを見て評価。キル数・順位だけで決めず、役割や試合状況も考慮する。',scores:ITEMS.map(()=>({a:'',b:''})),strengths:'',improve:'',summary:'',matches:Array.from({length:20},blankMatch),notes:Array.from({length:10},blankNote)}}
+function newPid(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
+function curP(){return W.players.find(p=>p.id===W.cur)||W.players[0]}
+function normW(v){if(v&&Array.isArray(v.players)&&v.players.length){v.players.forEach(p=>{p.id=p.id||newPid();p.name=p.name||'プレイヤー';p.u=p.u||0;p.data=Object.assign(fresh(),p.data||{})});v.del=v.del||{};if(!v.players.some(p=>p.id===v.cur))v.cur=v.players[0].id;v.v=2;return v}if(v&&v.matches){const id=newPid();return{v:2,cur:id,del:{},players:[{id,name:v.player||'プレイヤー1',u:0,data:Object.assign(fresh(),v)}]}}return null}
+function newW(){const id=newPid();return{v:2,cur:id,del:{},players:[{id,name:'プレイヤー1',u:0,data:fresh()}]}}
+function loadW(){try{return normW(JSON.parse(localStorage.getItem(KEY)))||newW()}catch(e){return newW()}}
+function hasData(){return W.players.some(p=>p.data.matches.some(m=>Object.values(m).some(x=>String(x).trim()!=='')))}
+function twice(el){if(el._a){clearTimeout(el._t);el._a=0;el.classList.remove('arm');el.textContent=el._o;return true}el._a=1;el._o=el.textContent;el.textContent='もう一度で確定';el.classList.add('arm');el._t=setTimeout(()=>{el._a=0;el.textContent=el._o;el.classList.remove('arm')},3000);return false}
+let tmr;function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(W))}catch(e){}}
+function save(noTouch){clearTimeout(tmr);tmr=setTimeout(()=>{curP().data=S;if(!noTouch)curP().u=Date.now();dirty=true;lss(KEY+'-dirty','1');let ok=true;try{localStorage.setItem(KEY,JSON.stringify(W))}catch(e){ok=false}toast(ok?'保存しました':'この端末に保存できませんでした（バックアップ保存を使ってください）');if(tok())schedSync(3000);showState()},400)}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1200)}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=v=>{if(v===''||v==null)return null;const n=Number(v);return Number.isFinite(n)?n:null};
+const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
+const fmt=(v,d)=>v==null?'':Number(v).toFixed(d);
+
+/* ---------- タブ ---------- */
+const TABS=[['log','試合記録'],['growth','成長グラフ'],['eval','個人評価'],['guide','評価基準'],['notes','プレイ中メモ']];
+$('#nav').innerHTML=TABS.map(([k,l])=>`<button data-t="${k}">${l}</button>`).join('');
+function show(k){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===k));document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='s-'+k));if(k==='growth')renderGrowth();if(k==='eval')renderEvalCalc();try{localStorage.setItem(KEY+'-tab',k)}catch(e){}}
+$('#nav').addEventListener('click',e=>{if(e.target.dataset.t)show(e.target.dataset.t)});
+
+/* ---------- 試合記録 ---------- */
+function renderLog(){
+  $('#logTable tbody').innerHTML=S.matches.map((m,i)=>`<tr>
+   <td class="c">${i+1}</td>
+   <td><input type="date" data-i="${i}" data-f="date" value="${esc(m.date)}"><input type="time" data-i="${i}" data-f="time" value="${esc(m.time||'')}" style="margin-top:4px"></td>
+   ${['rank','kill','dmg','down','surv'].map(f=>`<td><input type="number" min="0" step="${f==='surv'?'0.1':'1'}" data-i="${i}" data-f="${f}" value="${esc(m[f])}"></td>`).join('')}
+   ${['good','bad','next'].map(f=>`<td><textarea rows="2" data-i="${i}" data-f="${f}">${esc(m[f])}</textarea></td>`).join('')}
+   <td class="c"><button class="del" data-del="${i}" title="この行を削除">✕</button></td></tr>`).join('');
+}
+$('#logTable').addEventListener('input',e=>{const t=e.target;if(t.dataset.f!==undefined){S.matches[+t.dataset.i][t.dataset.f]=t.value;save()}});
+$('#logTable').addEventListener('click',e=>{const i=e.target.dataset.del;if(i!==undefined&&twice(e.target)){S.matches.splice(+i,1);renderLog();save()}});
+$('#addMatch').onclick=()=>{S.matches.push(blankMatch());renderLog();save()};
+
+/* ---------- 集計 ---------- */
+function values(k){return S.matches.map(m=>num(m[k])).filter(v=>v!==null)}
+function stats(M){const v=values(M.k),n=v.length;if(!n)return{n:0};const avg=mean(v),r5=mean(v.slice(-5)),diff=r5-avg;
+  const rel=avg===0?diff:diff/Math.abs(avg);
+  const better=M.lowGood?rel<=-0.05:rel>=0.05, worse=M.lowGood?rel>=0.05:rel<=-0.05;
+  return{n,avg,r5,diff,best:M.lowGood?Math.min(...v):Math.max(...v),worst:M.lowGood?Math.max(...v):Math.min(...v),state:n<6?'none':better?'up':worse?'down':'flat'}}
+function renderGrowth(){
+  const ST=METRICS.map(stats);
+  const sign=(v,d)=>{const t=v.toFixed(d);return Number(t)===0?(0).toFixed(d):(v>0?'+':'')+t};
+  $('#statTable').innerHTML=`<thead><tr><th>指標</th><th>通算平均</th><th>直近5試合平均</th><th>直近 − 通算</th><th>ベスト</th><th>ワースト</th><th>記録試合数</th></tr></thead><tbody>`+
+   METRICS.map((M,i)=>{const s=ST[i];if(!s.n)return`<tr><td class="c"><b>${M.label}</b></td>${'<td class="c">–</td>'.repeat(5)}<td class="c">0</td></tr>`;
+     const z=Number(s.diff.toFixed(M.dec))===0;const good=!z&&(M.lowGood?s.diff<0:s.diff>0),bad=!z&&(M.lowGood?s.diff>0:s.diff<0);
+     return`<tr><td class="c"><b>${M.label}</b></td><td class="c">${fmt(s.avg,M.dec)}</td><td class="c">${fmt(s.r5,M.dec)}</td><td class="c ${good?'up':bad?'down':''}">${sign(s.diff,M.dec)}</td><td class="c">${fmt(s.best,M.dec)}</td><td class="c">${fmt(s.worst,M.dec)}</td><td class="c">${s.n}</td></tr>`}).join('')+'</tbody>';
+  const lab={up:'↑ 上向き',flat:'→ 横ばい',down:'↓ 下向き'};
+  const act={up:'良い判断を「良かった判断・行動」に残して再現する。',down:'決めつけず、「改善したい場面・原因」を振り返る。',flat:'安定。次は重点課題を1〜3個に絞って伸ばす。'};
+  $('#trendTable').innerHTML='<thead><tr><th style="width:130px">指標</th><th style="width:110px">判定</th><th>コメント（評価基準に沿った見方）</th></tr></thead><tbody>'+
+   METRICS.map((M,i)=>{const s=ST[i];const cm=s.n<6?`6試合以上の記録で判定します（現在${s.n}試合）。`:`直近5試合 ${fmt(s.r5,M.dec)} / 通算 ${fmt(s.avg,M.dec)}。${act[s.state]}　※${M.tip}`;
+    return`<tr><td class="c"><b>${M.label}</b></td><td class="c">${s.n<6?'<span class="pill">データ不足</span>':`<span class="pill ${s.state}">${lab[s.state]}</span>`}</td><td>${cm}</td></tr>`}).join('')+
+   (()=>{const ups=ST.filter(s=>s.state==='up').length,downs=ST.filter(s=>s.state==='down').length;const ok=ST.some(s=>s.n>=6);
+     const t=!ok?'記録が6試合たまると、ここに最近の傾向を自動でまとめます。':`5指標中 ${ups}つが上向き、${downs}つが下向き。`+(downs>ups?'全体的に下降気味。まず記録の改善点を確認しましょう。':ups>downs?'全体的に上向きです。':'大きな変化はなし。')+'　数字だけで実力を断定せず、連携・生存・判断も合わせて見ます（評価基準⑤）。';
+     return`<tr><td class="c"><b>総括</b></td><td colspan="2">${t}</td></tr>`})()+'</tbody>';
+  renderFocus();renderCharts();
+}
+function latestScores(){return ITEMS.map((it,i)=>{const b=num(S.scores[i].b),a=num(S.scores[i].a);return{name:it[0],i,score:b!==null?b:a}}).filter(x=>x.score!==null)}
+function renderFocus(){
+  const L=latestScores();const weak=[...L].sort((x,y)=>x.score-y.score||x.i-y.i).slice(0,3),strong=[...L].sort((x,y)=>y.score-x.score||x.i-y.i).slice(0,3);
+  const row=(lab,x)=>{if(!x)return`<tr><td class="c"><b>${lab}</b></td><td class="c">（未入力）</td><td></td><td></td><td></td></tr>`;const g=GUIDE.find(g=>g[0]===x.score)||['','',''];return`<tr><td class="c"><b>${lab}</b></td><td class="c">${esc(x.name)}</td><td class="c">${x.score}</td><td class="c">${g[1]}</td><td>${g[2]}</td></tr>`};
+  $('#focusTable').innerHTML='<thead><tr><th>区分</th><th>項目</th><th>点数</th><th>評価</th><th>目安（評価基準）</th></tr></thead><tbody>'+[0,1,2].map(i=>row('重点課題 '+(i+1),weak[i])).join('')+[0,1,2].map(i=>row('強み '+(i+1),strong[i])).join('')+'</tbody>';
+}
+
+/* ---------- 折れ線グラフ(SVG) ---------- */
+function niceTicks(lo,hi,n=5){if(lo===hi){lo-=1;hi+=1}const raw=(hi-lo)/n,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p,st=(f<=1?1:f<=2?2:f<=5?5:10)*p;const a=Math.floor(lo/st)*st,b=Math.ceil(hi/st)*st,t=[];for(let v=a;v<=b+st/2;v+=st)t.push(+v.toFixed(6));return t}
+function lineChart({labels,series,invert,unit,dec,yMin,yMax,xLabel}){
+  const W=760,H=300,L=52,R=16,T=14,B=44,pw=W-L-R,ph=H-T-B;
+  const all=series.flatMap(s=>s.vals).filter(v=>v!=null);
+  if(!all.length)return`<svg viewBox="0 0 ${W} ${H}" width="100%"><text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#9aa4b2" font-size="14">データがありません（入力するとここに表示されます）</text></svg>`;
+  let lo=yMin??Math.min(...all),hi=yMax??Math.max(...all);if(yMin==null){const pad=(hi-lo)*.1||1;lo=Math.max(0,lo-pad);hi+=pad}
+  const ticks=niceTicks(lo,hi),a=ticks[0],b=ticks[ticks.length-1];
+  const n=labels.length;const X=i=>L+(n===1?pw/2:i*pw/(n-1));
+  const Y=v=>{const r=(v-a)/(b-a);return T+(invert?r:1-r)*ph};
+  let g='';
+  ticks.forEach(t=>{const y=Y(t);g+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#e3e9f2"/><text x="${L-8}" y="${y+4}" text-anchor="end" font-size="11" fill="#6b7280">${+t.toFixed(dec)}</text>`});
+  const step=Math.ceil(n/20);labels.forEach((l,i)=>{if(i%step===0||i===n-1)g+=`<text x="${X(i)}" y="${H-B+16}" text-anchor="middle" font-size="11" fill="#6b7280">${l}</text>`});
+  g+=`<text x="${L+pw/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="#6b7280">${xLabel||'試合#'}</text><text x="12" y="${T+ph/2}" text-anchor="middle" font-size="11" fill="#6b7280" transform="rotate(-90 12 ${T+ph/2})">${unit}</text>`;
+  series.forEach(s=>{const pts=s.vals.map((v,i)=>v==null?null:[X(i),Y(v),v,i]).filter(Boolean);
+    if(pts.length>1)g+=`<polyline fill="none" stroke="${s.color}" stroke-width="${s.width}" ${s.dash?`stroke-dasharray="${s.dash}"`:''} stroke-linejoin="round" points="${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}"/>`;
+    if(s.dots)pts.forEach(p=>g+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${pts.length===1?5:4}" fill="${s.color}" stroke="#fff" stroke-width="1.2"><title>${labels[p[3]]}：${s.name} ${+p[2].toFixed(dec+1)}</title></circle>`)});
+  return`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img">${g}</svg>`;
+}
+function renderCharts(){
+  const total=S.matches.length;let html='';
+  METRICS.forEach(M=>{
+    const raw=S.matches.map(m=>num(m[M.k]));const labels=raw.map((_,i)=>i+1);
+    let seen=[];const r5=[],cum=[];raw.forEach(v=>{if(v==null){r5.push(null);cum.push(null);return}seen.push(v);r5.push(mean(seen.slice(-5)));cum.push(mean(seen))});
+    // 末尾の未入力を省略（最低10試合分は軸を確保）
+    let last=raw.reduce((p,v,i)=>v!=null?i:p,-1);const cut=Math.max(10,last+1);
+    const sl=a=>a.slice(0,cut);
+    html+=`<div class="chartbox"><h3>${M.label}の推移${M.lowGood?'（小さいほど良い）':''}</h3>
+     <div class="legend"><span><i style="border-color:#7f7f7f"></i>各試合</span><span><i style="border-color:${'#ed7d31'}"></i>直近5試合平均</span><span><i style="border-color:#4f86e0;border-top-style:dashed"></i>通算平均</span></div>
+     ${lineChart({labels:sl(labels),invert:M.lowGood&&M.k==='rank',unit:M.unit,dec:M.dec,series:[
+       {name:'各試合',vals:sl(raw),color:'#7f7f7f',width:1.5,dots:true},
+       {name:'直近5試合平均',vals:sl(r5),color:'#ed7d31',width:3},
+       {name:'通算平均',vals:sl(cum),color:'#4f86e0',width:2,dash:'6 4'}]})}</div>`;
+  });
+  // 評価点
+  const A=S.scores.map(s=>num(s.a)),Bv=S.scores.map(s=>num(s.b));
+  html+=`<div class="chartbox"><h3>評価点の比較（初回 vs 再評価）</h3><div class="legend"><span><i style="border-color:#7f7f7f"></i>初回評価</span><span><i style="border-color:#ed7d31"></i>再評価</span></div>
+   ${lineChart({labels:ITEMS.map((_,i)=>i+1),unit:'点',dec:0,yMin:0,yMax:10,xLabel:'評価項目の番号（個人評価の表の左から順）',series:[{name:'初回',vals:A,color:'#7f7f7f',width:2.5,dots:true},{name:'再評価',vals:Bv,color:'#ed7d31',width:2.5,dots:true}]})}
+   <div class="hint" style="margin:6px">${ITEMS.map((it,i)=>`${i+1}=${it[0]}`).join('　')}</div></div>`;
+  $('#charts').innerHTML=html;
+}
+
+/* ---------- 個人評価 ---------- */
+function renderEval(){
+  ['player','date1','date2','premise','strengths','improve','summary'].forEach(k=>$('#'+k).value=S[k]||'');
+  const opt=v=>`<option value=""></option>`+Array.from({length:10},(_,i)=>`<option ${String(v)===String(i+1)?'selected':''}>${i+1}</option>`).join('');
+  $('#evalTable').innerHTML='<thead><tr><th>評価項目</th><th style="min-width:300px">評価の観点（チェックポイント）</th><th style="width:90px">初回評価</th><th style="width:90px">再評価</th><th style="width:70px">変化</th></tr></thead><tbody>'+
+   ITEMS.map((it,i)=>`<tr><td class="c"><b>${it[0]}</b></td><td>${it[1]}</td><td><select data-i="${i}" data-f="a">${opt(S.scores[i].a)}</select></td><td><select data-i="${i}" data-f="b">${opt(S.scores[i].b)}</select></td><td class="c" id="chg${i}"></td></tr>`).join('')+
+   '<tr class="total"><td id="totLab">合計点</td><td></td><td id="totA"></td><td id="totB"></td><td id="totD"></td></tr><tr class="total"><td>平均点</td><td></td><td id="avgA"></td><td id="avgB"></td><td></td></tr><tr class="total"><td>総合評価</td><td></td><td id="grA" class="grade"></td><td id="grB" class="grade"></td><td id="grD"></td></tr></tbody>';
+  renderEvalCalc();
+}
+function renderEvalCalc(){
+  const n=ITEMS.length;
+  ITEMS.forEach((_,i)=>{const a=num(S.scores[i].a),b=num(S.scores[i].b),e=document.getElementById('chg'+i);if(!e)return;if(a==null||b==null){e.textContent='';return}const d=b-a;e.textContent=d>0?'+'+d:d;e.className='c '+(d>0?'up':d<0?'down':'')});
+  const calc=f=>{const v=S.scores.map(s=>num(s[f])).filter(x=>x!==null);const sum=v.reduce((x,y)=>x+y,0);const avg=v.length?sum/v.length:null;const gr=v.length<n?'未評価':avg>=9?'S':avg>=8?'A':avg>=7?'B':avg>=6?'C':'D';return{sum,avg,gr,cnt:v.length}};
+  const A=calc('a'),B=calc('b');const set=(id,t)=>{const e=document.getElementById(id);if(e)e.textContent=t};
+  set('totLab',`合計点（${n}項目・${n*10}点満点）`);set('totA',A.sum);set('totB',B.sum);set('avgA',A.avg==null?'':A.avg.toFixed(1));set('avgB',B.avg==null?'':B.avg.toFixed(1));set('grA',A.gr);set('grB',B.gr);
+  set('totD',A.gr==='未評価'||B.gr==='未評価'?'':(B.sum-A.sum>0?'+':'')+(B.sum-A.sum));
+  set('grD',A.gr==='未評価'||B.gr==='未評価'?'':B.avg>A.avg?'成長':B.avg===A.avg?'維持':'要確認');
+}
+$('#evalTable').addEventListener('change',e=>{const t=e.target;if(t.dataset.f){S.scores[+t.dataset.i][t.dataset.f]=t.value;renderEvalCalc();save()}});
+['player','date1','date2','premise','strengths','improve','summary'].forEach(k=>$('#'+k).addEventListener('input',e=>{S[k]=e.target.value;save()}));
+
+/* ---------- 評価基準 ---------- */
+$('#guideTable').innerHTML='<thead><tr><th style="width:70px">点数</th><th style="width:140px">評価</th><th>目安</th></tr></thead><tbody>'+GUIDE.map(g=>`<tr><td class="c"><b>${g[0]}</b></td><td class="c">${g[1]}</td><td>${g[2]}</td></tr>`).join('')+'</tbody>';
+$('#tipList').innerHTML=TIPS.map(t=>`<li>${t}</li>`).join('');
+$('#checkList').innerHTML=CHECKS.map(t=>`<li>${t}</li>`).join('');
+
+/* ---------- プレイ中メモ ---------- */
+function renderNotes(){
+  $('#noteTable tbody').innerHTML=S.notes.map((n,i)=>`<tr>${['when','cat'].map(f=>`<td><input data-i="${i}" data-f="${f}" value="${esc(n[f])}"></td>`).join('')}${['fact','cause','next'].map(f=>`<td><textarea rows="2" data-i="${i}" data-f="${f}">${esc(n[f])}</textarea></td>`).join('')}<td class="c"><button class="del" data-del="${i}">✕</button></td></tr>`).join('');
+}
+$('#noteTable').addEventListener('input',e=>{const t=e.target;if(t.dataset.f){S.notes[+t.dataset.i][t.dataset.f]=t.value;save()}});
+$('#noteTable').addEventListener('click',e=>{const i=e.target.dataset.del;if(i!==undefined&&twice(e.target)){S.notes.splice(+i,1);renderNotes();save()}});
+$('#addNote').onclick=()=>{S.notes.push(blankNote());renderNotes();save()};
+
+/* ---------- バックアップ / CSV / サンプル ---------- */
+function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+$('#bBackup').onclick=()=>{curP().data=S;download(`PUBG成長ノート_${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(W,null,1),'application/json')};
+$('#bRestore').onclick=()=>$('#file').click();
+$('#file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const v=normW(JSON.parse(r.result));if(!v)throw 0;curP().data=S;const names=new Set(W.players.map(p=>p.name));v.players.forEach(p=>{let n=p.name,k=2;if(names.has(n))n=p.name+'（取込）';while(names.has(n))n=p.name+'（取込'+(k++)+'）';names.add(n);W.players.push({id:newPid(),name:n,u:Date.now(),data:p.data})});W.cur=W.players[W.players.length-v.players.length].id;S=curP().data;renderAll();renderPlayers();save();toast('読み込みました（新しいプレイヤーとして追加）')}catch(x){toast('このファイルは読み込めませんでした')}};r.readAsText(f);e.target.value=''};
+$('#bCsv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['試合#','日付','時刻','順位','キル','ダメージ','ダウン数','生存時間(分)','良かった判断・行動','改善したい場面・原因','次の試合で意識すること']].concat(S.matches.map((m,i)=>[i+1,m.date,m.time||'',m.rank,m.kill,m.dmg,m.down,m.surv,m.good,m.bad,m.next]));download('試合ごとの記録_'+curP().name+'.csv','﻿'+rows.map(r=>r.map(q).join(',')).join('\r\n'),'text/csv')};
+$('#bSample').onclick=()=>{if(!twice($('#bSample')))return;
+  let seed=7;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;const d=new Date();d.setDate(d.getDate()-30);
+  S=fresh();S.matches=Array.from({length:14},(_,i)=>{const t=new Date(d);t.setDate(d.getDate()+i*2);return{date:t.toISOString().slice(0,10),time:['19:30','21:00','22:15'][i%3],rank:String(Math.max(1,Math.round(22-i*1.2+rnd()*14))),kill:String(Math.round(rnd()*4+i/4)),dmg:String(Math.round(150+rnd()*350+i*25)),down:String(Math.round(rnd()*2.6)),surv:(8+rnd()*8+i*.5).toFixed(1),good:i%3===0?'アンチ前に高所を確保できた':'',bad:i%4===0?'車を止める位置が遠く、突っ込みで先に撃たれた':'',next:''}});
+  S.scores=ITEMS.map(()=>({a:String(3+Math.floor(rnd()*4)),b:String(4+Math.floor(rnd()*5))}));S.player='サンプル';renderAll();save()};
+
+
+/* ---------- PDF出力（印刷 → 「PDFに保存」） ---------- */
+function calcEval(f){const v=S.scores.map(s=>num(s[f])).filter(x=>x!==null);const sum=v.reduce((x,y)=>x+y,0);const avg=v.length?sum/v.length:null;const gr=v.length<ITEMS.length?'未評価':avg>=9?'S':avg>=8?'A':avg>=7?'B':avg>=6?'C':'D';return{sum,avg,gr}}
+function buildReport(){
+  renderGrowth();
+  const today=new Date().toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric'});
+  const A=calcEval('a'),B=calcEval('b'),both=A.gr!=='未評価'&&B.gr!=='未評価';
+  const txt=t=>t&&t.trim()?esc(t):'<span class="empty">（未記入）</span>';
+  const evalRows=ITEMS.map((it,i)=>{const a=num(S.scores[i].a),b=num(S.scores[i].b);const d=a!=null&&b!=null?b-a:null;
+    return`<tr><td><b>${it[0]}</b></td><td>${it[1]}</td><td class="c">${a??''}</td><td class="c">${b??''}</td><td class="c ${d>0?'up':d<0?'down':''}">${d==null?'':d>0?'+'+d:d}</td></tr>`}).join('');
+  const mrows=S.matches.map((m,i)=>[i,m]).filter(([i,m])=>Object.values(m).some(v=>String(v).trim()!==''));
+  const nrows=S.notes.filter(n=>Object.values(n).some(v=>String(v).trim()!==''));
+  const R=$('#report');
+  R.innerHTML=`
+  <h1>PUBG MOBILE 成長レポート</h1>
+  <div class="meta">プレイヤー：<b>${esc(S.player||'（未入力）')}</b>　／　初回評価日：${esc(S.date1||'―')}　再評価日：${esc(S.date2||'―')}　／　出力日：${today}</div>
+  ${S.premise?`<div class="meta">評価の前提：${esc(S.premise)}</div>`:''}
+
+  <h2>1. 個人評価</h2>
+  <table><thead><tr><th style="width:110px">評価項目</th><th>評価の観点</th><th style="width:50px">初回</th><th style="width:50px">再評価</th><th style="width:44px">変化</th></tr></thead><tbody>${evalRows}
+   <tr class="total"><td>合計点（${ITEMS.length*10}点満点）</td><td></td><td>${A.sum}</td><td>${B.sum}</td><td>${both?(B.sum-A.sum>0?'+':'')+(B.sum-A.sum):''}</td></tr>
+   <tr class="total"><td>平均点</td><td></td><td>${A.avg==null?'':A.avg.toFixed(1)}</td><td>${B.avg==null?'':B.avg.toFixed(1)}</td><td></td></tr>
+   <tr class="total"><td>総合評価</td><td></td><td>${A.gr}</td><td>${B.gr}</td><td>${both?(B.avg>A.avg?'成長':B.avg===A.avg?'維持':'要確認'):''}</td></tr></tbody></table>
+  <h3>強み</h3><div class="box">${txt(S.strengths)}</div>
+  <h3>改善ポイント</h3><div class="box">${txt(S.improve)}</div>
+  <h3>総評</h3><div class="box">${txt(S.summary)}</div>
+
+  <div class="pb"></div>
+  <h2>2. 試合の傾向まとめ</h2>
+  <h3>通算・直近の平均</h3><table>${$('#statTable').innerHTML}</table>
+  <h3>最近の傾向（自動判定）</h3><table>${$('#trendTable').innerHTML}</table>
+  <h3>評価シートからの重点（評価基準）</h3><table>${$('#focusTable').innerHTML}</table>
+
+  <div class="pb"></div>
+  <h2>3. 推移グラフ</h2>
+  ${$('#charts').innerHTML}
+
+  <div class="land pb">
+   <h2>4. 試合ごとの記録（入力のある試合 ${mrows.length}件）</h2>
+   ${mrows.length?`<table><thead><tr><th>#</th><th>日付・時刻</th><th>順位</th><th>キル</th><th>ダメージ</th><th>ダウン</th><th>生存(分)</th><th>良かった判断・行動</th><th>改善したい場面・原因</th><th>次の試合で意識すること</th></tr></thead><tbody>`+
+     mrows.map(([i,m])=>`<tr><td class="c">${i+1}</td><td class="c">${esc(m.date)}${m.time?'<br>'+esc(m.time):''}</td><td class="c">${esc(m.rank)}</td><td class="c">${esc(m.kill)}</td><td class="c">${esc(m.dmg)}</td><td class="c">${esc(m.down)}</td><td class="c">${esc(m.surv)}</td><td>${esc(m.good)}</td><td>${esc(m.bad)}</td><td>${esc(m.next)}</td></tr>`).join('')+'</tbody></table>':'<p class="empty">記録がありません。</p>'}
+   ${nrows.length?`<h2>5. プレイ中メモ</h2><table><thead><tr><th>場面/時間</th><th>カテゴリ</th><th>起きたこと（事実）</th><th>原因の仮説</th><th>次に試す行動</th></tr></thead><tbody>`+nrows.map(n=>`<tr><td>${esc(n.when)}</td><td>${esc(n.cat)}</td><td>${esc(n.fact)}</td><td>${esc(n.cause)}</td><td>${esc(n.next)}</td></tr>`).join('')+'</tbody></table>':''}
+  </div>`;
+}
+$('#bPdf').onclick=()=>{buildReport();const old=document.title;document.title='PUBG成長レポート_'+(S.player||'')+new Date().toISOString().slice(0,10);
+  setTimeout(()=>{window.print();document.title=old},100)};
+window.addEventListener('afterprint',()=>{$('#report').innerHTML=''});
+
+function renderPlayers(){$('#pSel').innerHTML=W.players.map(p=>`<option value="${p.id}"${p.id===W.cur?' selected':''}>${esc(p.name)}</option>`).join('');$('#pDel').style.display=W.players.length>1?'':'none'}
+function switchP(id){curP().data=S;W.cur=id;S=curP().data;renderAll();renderPlayers();saveLocal()}
+let pMode='';
+function pEditOpen(m){pMode=m;$('#pEdit').style.display='';const i=$('#pName');i.value=m==='ren'?curP().name:'';i.focus()}
+function pEditClose(){pMode='';$('#pEdit').style.display='none'}
+function pCommit(){const n=$('#pName').value.trim().slice(0,20);if(!n)return;curP().data=S;if(pMode==='add'){const id=newPid();const d=fresh();d.player=n;W.players.push({id,name:n,data:d});W.cur=id;S=d}else if(pMode==='ren'){const p=curP();if(!S.player||S.player===p.name)S.player=n;p.name=n}pEditClose();renderAll();renderPlayers();save()}
+$('#pSel').onchange=e=>switchP(e.target.value);
+$('#pAdd').onclick=()=>pEditOpen('add');$('#pRen').onclick=()=>pEditOpen('ren');
+$('#pOk').onclick=pCommit;$('#pNo').onclick=pEditClose;
+$('#pName').addEventListener('keydown',e=>{if(e.key==='Enter')pCommit();if(e.key==='Escape')pEditClose()});
+$('#pDel').onclick=function(){if(!twice(this))return;const id=W.cur;(W.del=W.del||{})[id]=Date.now();W.players=W.players.filter(p=>p.id!==id);W.cur=W.players[0].id;S=curP().data;renderAll();renderPlayers();save(true)};
+/* ===== OneDrive同期 ===== */
+const MS_CLIENT_ID='5d7fa185-42be-4371-9679-4bcfb01f25f7';
+const OD={scope:'offline_access Files.ReadWrite.AppFolder',auth:'https://login.microsoftonline.com/consumers/oauth2/v2.0/',g:'https://graph.microsoft.com/v1.0/me/drive/special/approot:/growth-note.json'};
+const lsg=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lss=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const lsd=k=>{try{localStorage.removeItem(k)}catch(e){}};
+const cid=()=>MS_CLIENT_ID||lsg(KEY+'-cid')||'';
+const ruri=()=>location.origin+location.pathname.replace(/index\.html$/,'');
+let ETAG=lsg(KEY+'-etag')||'',dirty=lsg(KEY+'-dirty')==='1',syncing=false,again=false,stTimer,odMsg='',lastSync=null;
+function b64u(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function tok(){try{return JSON.parse(lsg(KEY+'-tok'))||null}catch(e){return null}}
+async function odLogin(){const c=cid();if(!c){setMsg('先にクライアントIDを入力してください');return}const ver=b64u(crypto.getRandomValues(new Uint8Array(48)));const ch=b64u(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ver)));const st=b64u(crypto.getRandomValues(new Uint8Array(12)));lss(KEY+'-pkce',JSON.stringify({ver,st}));location.href=OD.auth+'authorize?'+new URLSearchParams({client_id:c,response_type:'code',redirect_uri:ruri(),response_mode:'query',scope:OD.scope,code_challenge:ch,code_challenge_method:'S256',state:st,prompt:'select_account'})}
+async function tokenReq(p){const r=await fetch(OD.auth+'token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(Object.assign({client_id:cid(),scope:OD.scope},p))});const j=await r.json();if(!r.ok)throw new Error(j.error_description||j.error||r.status);const o=tok()||{};const k={a:j.access_token,r:j.refresh_token||o.r,e:Date.now()+(j.expires_in||3600)*1000-60000};lss(KEY+'-tok',JSON.stringify(k));return k}
+async function getTok(){const t=tok();if(!t)return null;if(Date.now()<t.e)return t.a;try{return (await tokenReq({grant_type:'refresh_token',refresh_token:t.r})).a}catch(e){lsd(KEY+'-tok');setMsg('ログインの有効期限が切れました。「OneDriveにログイン」を押してください');return null}}
+async function odCallback(){const q=new URLSearchParams(location.search);if(!q.has('code')&&!q.has('error'))return;const pk=JSON.parse(lsg(KEY+'-pkce')||'null');history.replaceState(null,'',ruri());lsd(KEY+'-pkce');if(q.has('error')){setMsg('ログインできませんでした：'+(q.get('error_description')||q.get('error')));return}if(!pk||pk.st!==q.get('state')){setMsg('ログイン情報が一致しませんでした。もう一度お試しください');return}try{await tokenReq({grant_type:'authorization_code',code:q.get('code'),redirect_uri:ruri(),code_verifier:pk.ver});setMsg('')}catch(e){setMsg('ログインに失敗：'+e.message)}}
+function gfetch(url,opt,tk){opt=opt||{};opt.headers=Object.assign({Authorization:'Bearer '+tk},opt.headers||{});return fetch(url,opt)}
+async function getMeta(tk){const r=await gfetch(OD.g+'?select=id,eTag,size,lastModifiedDateTime,@microsoft.graph.downloadUrl',{},tk);if(r.status===404)return null;if(!r.ok)throw new Error('取得に失敗('+r.status+')');return r.json()}
+async function odGet(meta,tk){let r=null;const u=meta['@microsoft.graph.downloadUrl'];if(u){try{r=await fetch(u);if(!r.ok)r=null}catch(e){r=null}}if(!r){r=await gfetch(OD.g+':/content',{},tk);if(!r.ok)throw new Error('読み込みに失敗('+r.status+')')}return JSON.parse(await r.text())}
+async function odPut(body,tk){const h={'Content-Type':'application/json'};let r;try{r=await gfetch(OD.g+':/content',{method:'PUT',headers:Object.assign({},h,ETAG?{'If-Match':ETAG}:{}),body},tk)}catch(e){r=await gfetch(OD.g+':/content',{method:'PUT',headers:h,body},tk)}if(r.status===412)return 412;if(!r.ok)throw new Error('保存に失敗('+r.status+')');const j=await r.json();ETAG=j.eTag||'';lss(KEY+'-etag',ETAG);return 200}
+function hasP(p){return p.data.matches.some(m=>Object.values(m).some(x=>String(x).trim()!==''))}
+function sig(w){return w.players.map(p=>p.id+':'+(p.u||0)).sort().join('|')+'#'+Object.keys(w.del||{}).sort().join(',')}
+function merge(a,b){const del={};[a.del,b.del].forEach(d=>{for(const k in d||{})del[k]=Math.max(del[k]||0,d[k])});const m=new Map();[a,b].forEach(w=>w.players.forEach(p=>{const o=m.get(p.id);if(!o||(p.u||0)>(o.u||0))m.set(p.id,p)}));let ps=[...m.values()].filter(p=>!(del[p.id]&&del[p.id]>=(p.u||0)));const real=ps.filter(p=>(p.u||0)>0||hasP(p));ps=real.length?real:ps.slice(0,1);if(!ps.length)ps=[{id:newPid(),name:'プレイヤー1',u:0,data:fresh()}];return{v:2,cur:a.cur,del,players:ps}}
+function schedSync(ms){clearTimeout(stTimer);stTimer=setTimeout(sync,ms)}
+async function sync(){if(syncing){again=true;return}if(!await getTok()){showState();return}syncing=true;setMsg('同期中…');try{for(let i=0;i<3;i++){const tk=await getTok();if(!tk)throw new Error('ログインが必要です');curP().data=S;const meta=await getMeta(tk);if(!meta){if(hasData()||dirty){const r=await odPut(JSON.stringify({t:Date.now(),w:W}),tk);if(r===412)continue}dirty=false;lss(KEY+'-dirty','0');break}let push=dirty;if(meta.eTag!==ETAG){const rem=await odGet(meta,tk);const rw=normW(rem&&rem.w);if(rw){const before=sig(W);const m=merge(W,rw);if(sig(m)!==before){W=m;if(!W.players.some(p=>p.id===W.cur))W.cur=W.players[0].id;S=curP().data;saveLocal();renderAll();renderPlayers();toast('他の端末の変更を反映しました')}if(sig(m)!==sig(rw))push=true}ETAG=meta.eTag;lss(KEY+'-etag',ETAG)}if(push){const r=await odPut(JSON.stringify({t:Date.now(),w:W}),tk);if(r===412)continue}dirty=false;lss(KEY+'-dirty','0');break}lastSync=new Date();odMsg=''}catch(e){odMsg='同期エラー：'+e.message}finally{syncing=false;if(again){again=false;schedSync(500)}}showState()}
+function setMsg(m){odMsg=m;showState()}
+function showState(){const b=$('#bSync');if(!b)return;const c=cid(),t=tok();let s;if(!c)s='未設定：Azureで登録したクライアントIDを入力してください';else if(!t)s=odMsg||'未ログイン';else s=odMsg||('連携中'+(lastSync?'（最終同期 '+lastSync.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})+'）':''));$('#syncState').textContent=s;b.textContent=t?('☁ 同期'+(dirty?'待ち':'済み')):'☁ OneDrive連携';$('#cidRow').style.display=MS_CLIENT_ID?'none':'';$('#odLogin').style.display=t?'none':'';$('#odNow').style.display=t?'':'none';$('#odLogout').style.display=t?'':'none';$('#ruri').textContent=ruri()}
+/* ===== /OneDrive同期 ===== */
+$('#bSync').onclick=()=>{const p=$('#syncPanel');p.style.display=p.style.display==='none'?'':'none';showState()};
+$('#cidSave').onclick=()=>{const v=$('#cidIn').value.trim();if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v)){lss(KEY+'-cid',v);setMsg('クライアントIDを保存しました。「OneDriveにログイン」を押してください')}else setMsg('IDの形式が違います（xxxxxxxx-xxxx-… の36文字）')};
+$('#odLogin').onclick=odLogin;$('#odNow').onclick=()=>sync();
+$('#odLogout').onclick=()=>{lsd(KEY+'-tok');lsd(KEY+'-etag');ETAG='';setMsg('連携を解除しました（OneDrive上のデータは残ります）')};
+async function odInit(){await odCallback();showState();if(tok()){sync();setInterval(()=>{if(!document.hidden)sync()},60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync()});window.addEventListener('pagehide',()=>{if(dirty)sync()})}}
+function renderAll(){renderLog();renderEval();renderNotes();renderGrowth()}
+async function boot(){
+  renderPlayers();odInit();
+  renderAll();
+  let t0='log';try{t0=localStorage.getItem(KEY+'-tab')||'log'}catch(e){}show(TABS.some(t=>t[0]===t0)?t0:'log');
+}
+boot();
+</script>
+</body>
+</html>
