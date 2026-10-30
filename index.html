@@ -190,7 +190,7 @@ header select option{color:#1f2937;background:#fff}
       <th>#</th><th style="min-width:140px">日付・時刻</th><th>順位</th><th>キル</th><th>ダメージ</th><th>ダウン数</th><th>生存時間(分)</th>
       <th style="min-width:200px">良かった判断・行動</th><th style="min-width:200px">改善したい場面・原因</th><th style="min-width:200px">次の試合で意識すること</th><th></th>
     </tr></thead><tbody></tbody></table></div>
-    <p style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button id="addMatch" class="noprint">＋ 試合を追加</button><input type="number" id="addCount" min="1" max="1000" step="1" value="1" inputmode="numeric" style="width:90px;text-align:center" title="一度に追加する行数（1〜1000）"><span class="hint" style="margin:0">行ぶん（1〜1000）</span></p>
+    <p style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button id="addMatch" class="noprint">＋ 試合を追加</button><input type="number" id="addCount" min="1" max="1000" step="1" value="1" inputmode="numeric" style="width:90px;text-align:center" title="一度に追加する行数（1〜1000）"><span class="hint" style="margin:0">行ぶん（1〜1000）</span><button id="sortMatch" class="noprint" title="日付・時刻の古い順に並べ替えます">📅 日付順に並べ替え</button></p>
   </div>
 </section>
 
@@ -331,6 +331,17 @@ function renderLog(){
 $('#logTable').addEventListener('input',e=>{const t=e.target;if(t.dataset.f!==undefined){S.matches[+t.dataset.i][t.dataset.f]=t.value;save()}});
 $('#logTable').addEventListener('click',e=>{const i=e.target.dataset.del;if(i!==undefined&&twice(e.target)){S.matches.splice(+i,1);renderLog();save()}});
 $('#addMatch').onclick=()=>{let n=parseInt($('#addCount').value,10);if(!Number.isFinite(n)||n<1)n=1;if(n>1000)n=1000;$('#addCount').value=n;for(let i=0;i<n;i++)S.matches.push(blankMatch());renderLog();save();if(n>1)toast(n+'試合ぶん追加しました')};
+
+$('#sortMatch').onclick=()=>{
+  const filled=m=>Object.values(m).some(x=>String(x).trim()!=='');
+  const dk=m=>String(m.date||'').trim()?String(m.date).trim()+' '+(String(m.time||'').trim()||'00:00'):'';
+  const idx=S.matches.map((m,i)=>[m,i]);
+  const dated=idx.filter(([m])=>dk(m)),undated=idx.filter(([m])=>filled(m)&&!dk(m)),blank=idx.filter(([m])=>!filled(m));
+  dated.sort((a,b)=>dk(a[0])<dk(b[0])?-1:dk(a[0])>dk(b[0])?1:a[1]-b[1]);
+  const next=[...dated,...undated,...blank].map(x=>x[0]);
+  if(next.every((m,i)=>m===S.matches[i])){toast('すでに日付順です');return}
+  S.matches=next;renderLog();renderGrowth();save();toast('日付の古い順に並べ替えました');
+};
 
 /* ---------- 集計 ---------- */
 function values(k){return S.matches.map(m=>num(m[k])).filter(v=>v!==null)}
