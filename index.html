@@ -164,6 +164,8 @@ header select option{color:#1f2937;background:#fff}
   <button id="bSync">☁ OneDrive連携</button>
   <button id="bBackup">💾 バックアップ保存</button>
   <button id="bRestore">📂 読み込み</button>
+  <button id="bMatchImp" title="バックアップファイルから「試合ごとの記録」だけを取り込みます（個人評価・メモはそのまま）">📥 試合記録だけ読み込み</button>
+  <input type="file" id="fileMatch" accept=".json" style="display:none">
   <button id="bPdf">📑 PDF出力</button>
   <button id="bCsv">📄 試合記録をCSV出力</button>
   <button id="bSample">サンプル</button>
@@ -188,7 +190,7 @@ header select option{color:#1f2937;background:#fff}
       <th>#</th><th style="min-width:140px">日付・時刻</th><th>順位</th><th>キル</th><th>ダメージ</th><th>ダウン数</th><th>生存時間(分)</th>
       <th style="min-width:200px">良かった判断・行動</th><th style="min-width:200px">改善したい場面・原因</th><th style="min-width:200px">次の試合で意識すること</th><th></th>
     </tr></thead><tbody></tbody></table></div>
-    <p><button id="addMatch" class="noprint">＋ 試合を追加</button></p>
+    <p style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button id="addMatch" class="noprint">＋ 試合を追加</button><input type="number" id="addCount" min="1" max="1000" step="1" value="1" inputmode="numeric" style="width:90px;text-align:center" title="一度に追加する行数（1〜1000）"><span class="hint" style="margin:0">行ぶん（1〜1000）</span></p>
   </div>
 </section>
 
@@ -328,7 +330,7 @@ function renderLog(){
 }
 $('#logTable').addEventListener('input',e=>{const t=e.target;if(t.dataset.f!==undefined){S.matches[+t.dataset.i][t.dataset.f]=t.value;save()}});
 $('#logTable').addEventListener('click',e=>{const i=e.target.dataset.del;if(i!==undefined&&twice(e.target)){S.matches.splice(+i,1);renderLog();save()}});
-$('#addMatch').onclick=()=>{S.matches.push(blankMatch());renderLog();save()};
+$('#addMatch').onclick=()=>{let n=parseInt($('#addCount').value,10);if(!Number.isFinite(n)||n<1)n=1;if(n>1000)n=1000;$('#addCount').value=n;for(let i=0;i<n;i++)S.matches.push(blankMatch());renderLog();save();if(n>1)toast(n+'試合ぶん追加しました')};
 
 /* ---------- 集計 ---------- */
 function values(k){return S.matches.map(m=>num(m[k])).filter(v=>v!==null)}
@@ -443,6 +445,25 @@ function download(name,text,type){const a=document.createElement('a');a.href=URL
 $('#bBackup').onclick=()=>{curP().data=S;download(`PUBG成長ノート_${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(W,null,1),'application/json')};
 $('#bRestore').onclick=()=>$('#file').click();
 $('#file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const v=normW(JSON.parse(r.result));if(!v)throw 0;curP().data=S;const names=new Set(W.players.map(p=>p.name));v.players.forEach(p=>{let n=p.name,k=2;if(names.has(n))n=p.name+'（取込）';while(names.has(n))n=p.name+'（取込'+(k++)+'）';names.add(n);W.players.push({id:newPid(),name:n,u:Date.now(),data:p.data})});W.cur=W.players[W.players.length-v.players.length].id;S=curP().data;renderAll();renderPlayers();save();toast('読み込みました（新しいプレイヤーとして追加）')}catch(x){toast('このファイルは読み込めませんでした')}};r.readAsText(f);e.target.value=''};
+/* 試合記録だけ読み込み：個人評価・プレイ中メモ・その他はそのまま維持 */
+$('#bMatchImp').onclick=()=>$('#fileMatch').click();
+$('#fileMatch').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const r=new FileReader();r.onload=()=>{try{
+  const raw=JSON.parse(r.result);let src=null;
+  const v=normW(raw);
+  if(!v)throw 0;
+  if(v.players.length===1)src=v.players[0];
+  else{
+    // 複数プレイヤーのバックアップ：現在のプレイヤー名と同名を優先、なければ番号で選ぶ
+    src=v.players.find(p=>p.name===curP().name);
+    if(!src){const list=v.players.map((p,i)=>(i+1)+': '+p.name).join('\n');const a=prompt('どのプレイヤーの試合記録を読み込みますか？番号を入力してください\n'+list,'1');if(a===null)return;src=v.players[(parseInt(a,10)||0)-1];if(!src)throw 0}
+  }
+  const ms=(src.data.matches||[]).map(m=>Object.assign(blankMatch(),m));
+  const cnt=ms.filter(m=>Object.values(m).some(x=>String(x).trim()!=='')).length;
+  const cur=S.matches.filter(m=>Object.values(m).some(x=>String(x).trim()!=='')).length;
+  if(!confirm(`「${curP().name}」の試合記録を、読み込んだファイル（${src.name}・${cnt}試合）の内容に置き換えます。\n現在の試合記録：${cur}試合\n\n個人評価・プレイ中メモ・その他は変更されません。よろしいですか？`))return;
+  S.matches=ms;
+  renderLog();renderGrowth();save();toast('試合記録だけ更新しました');
+}catch(x){toast('このファイルは読み込めませんでした')}};r.readAsText(f)};
 $('#bCsv').onclick=()=>{const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const rows=[['試合#','日付','時刻','順位','キル','ダメージ','ダウン数','生存時間(分)','良かった判断・行動','改善したい場面・原因','次の試合で意識すること']].concat(S.matches.map((m,i)=>[i+1,m.date,m.time||'',m.rank,m.kill,m.dmg,m.down,m.surv,m.good,m.bad,m.next]));download('試合ごとの記録_'+curP().name+'.csv','﻿'+rows.map(r=>r.map(q).join(',')).join('\r\n'),'text/csv')};
 $('#bSample').onclick=()=>{if(!twice($('#bSample')))return;
   let seed=7;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;const d=new Date();d.setDate(d.getDate()-30);
