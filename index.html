@@ -147,6 +147,7 @@ header select option{color:#1f2937;background:#fff}
  #evalTable tbody tr{grid-template-columns:repeat(3,1fr)}
  #evalTable td:nth-child(1){grid-column:1/-1;font-weight:700;color:var(--navy);font-size:14px;text-align:left}
  #evalTable td:nth-child(2){grid-column:1/-1;font-size:12px;color:var(--mute)}
+ #evalTable td:nth-child(6){grid-column:1/-1}
  #evalTable td:empty{display:none}
  #evalTable td.c{text-align:left}
  #evalTable tr.total{background:var(--total)}
@@ -290,7 +291,7 @@ const KEY='pubg-growth-note-v1';
 const blankMatch=()=>({date:'',time:'',rank:'',kill:'',dmg:'',down:'',surv:'',good:'',bad:'',next:''});
 const blankNote=()=>({when:'',cat:'',fact:'',cause:'',next:''});
 let W=loadW();let S=curP().data;
-function fresh(){return{player:'',date1:'',date2:'',premise:'複数試合のプレイを見て評価。キル数・順位だけで決めず、役割や試合状況も考慮する。',scores:ITEMS.map(()=>({a:'',b:''})),strengths:'',improve:'',summary:'',matches:Array.from({length:20},blankMatch),notes:Array.from({length:10},blankNote)}}
+function fresh(){return{player:'',date1:'',date2:'',premise:'複数試合のプレイを見て評価。キル数・順位だけで決めず、役割や試合状況も考慮する。',scores:ITEMS.map(()=>({a:'',b:'',memo:''})),strengths:'',improve:'',summary:'',matches:Array.from({length:20},blankMatch),notes:Array.from({length:10},blankNote)}}
 function newPid(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
 function curP(){return W.players.find(p=>p.id===W.cur)||W.players[0]}
 function normW(v){if(v&&Array.isArray(v.players)&&v.players.length){v.players.forEach(p=>{p.id=p.id||newPid();p.name=p.name||'プレイヤー';p.u=p.u||0;p.data=Object.assign(fresh(),p.data||{})});v.del=v.del||{};if(!v.players.some(p=>p.id===v.cur))v.cur=v.players[0].id;v.v=2;return v}if(v&&v.matches){const id=newPid();return{v:2,cur:id,del:{},players:[{id,name:v.player||'プレイヤー1',u:0,data:Object.assign(fresh(),v)}]}}return null}
@@ -306,7 +307,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const num=v=>{if(v===''||v==null)return null;const n=Number(v);return Number.isFinite(n)?n:null};
 const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
 const fmt=(v,d)=>v==null?'':Number(v).toFixed(d);
-const LAB={logTable:['','日付・時刻','順位','キル','ダメージ','ダウン数','生存時間(分)','良かった判断・行動','改善したい場面・原因','次の試合で意識すること',''],noteTable:['場面/時間','カテゴリ','起きたこと（事実）','原因の仮説','次に試す行動',''],evalTable:['','','初回評価','再評価','変化']};
+const LAB={logTable:['','日付・時刻','順位','キル','ダメージ','ダウン数','生存時間(分)','良かった判断・行動','改善したい場面・原因','次の試合で意識すること',''],noteTable:['場面/時間','カテゴリ','起きたこと（事実）','原因の仮説','次に試す行動',''],evalTable:['','','初回評価','再評価','変化','メモ']};
 function labelCells(id){const L=LAB[id];document.querySelectorAll('#'+id+' tbody tr').forEach(tr=>[...tr.children].forEach((td,i)=>{if(L[i])td.setAttribute('data-label',L[i])}))}
 
 /* ---------- タブ ---------- */
@@ -405,9 +406,9 @@ function renderCharts(){
 function renderEval(){
   ['player','date1','date2','premise','strengths','improve','summary'].forEach(k=>$('#'+k).value=S[k]||'');
   const opt=v=>`<option value=""></option>`+Array.from({length:10},(_,i)=>`<option ${String(v)===String(i+1)?'selected':''}>${i+1}</option>`).join('');
-  $('#evalTable').innerHTML='<thead><tr><th>評価項目</th><th style="min-width:300px">評価の観点（チェックポイント）</th><th style="width:90px">初回評価</th><th style="width:90px">再評価</th><th style="width:70px">変化</th></tr></thead><tbody>'+
-   ITEMS.map((it,i)=>`<tr><td class="c"><b>${it[0]}</b></td><td>${it[1]}</td><td><select data-i="${i}" data-f="a">${opt(S.scores[i].a)}</select></td><td><select data-i="${i}" data-f="b">${opt(S.scores[i].b)}</select></td><td class="c" id="chg${i}"></td></tr>`).join('')+
-   '<tr class="total"><td id="totLab">合計点</td><td></td><td id="totA"></td><td id="totB"></td><td id="totD"></td></tr><tr class="total"><td>平均点</td><td></td><td id="avgA"></td><td id="avgB"></td><td></td></tr><tr class="total"><td>総合評価</td><td></td><td id="grA" class="grade"></td><td id="grB" class="grade"></td><td id="grD"></td></tr></tbody>';
+  $('#evalTable').innerHTML='<thead><tr><th>評価項目</th><th style="min-width:300px">評価の観点（チェックポイント）</th><th style="width:90px">初回評価</th><th style="width:90px">再評価</th><th style="width:70px">変化</th><th style="min-width:220px">メモ（根拠にした場面など）</th></tr></thead><tbody>'+
+   ITEMS.map((it,i)=>`<tr><td class="c"><b>${it[0]}</b></td><td>${it[1]}</td><td><select data-i="${i}" data-f="a">${opt(S.scores[i].a)}</select></td><td><select data-i="${i}" data-f="b">${opt(S.scores[i].b)}</select></td><td class="c" id="chg${i}"></td><td><textarea rows="2" data-i="${i}" data-f="memo" placeholder="例：中距離でリコイルが跳ねた場面">${esc(S.scores[i].memo||'')}</textarea></td></tr>`).join('')+
+   '<tr class="total"><td id="totLab">合計点</td><td></td><td id="totA"></td><td id="totB"></td><td id="totD"></td><td></td></tr><tr class="total"><td>平均点</td><td></td><td id="avgA"></td><td id="avgB"></td><td></td><td></td></tr><tr class="total"><td>総合評価</td><td></td><td id="grA" class="grade"></td><td id="grB" class="grade"></td><td id="grD"></td><td></td></tr></tbody>';
   labelCells('evalTable');renderEvalCalc();
 }
 function renderEvalCalc(){
@@ -419,7 +420,8 @@ function renderEvalCalc(){
   set('totD',A.gr==='未評価'||B.gr==='未評価'?'':(B.sum-A.sum>0?'+':'')+(B.sum-A.sum));
   set('grD',A.gr==='未評価'||B.gr==='未評価'?'':B.avg>A.avg?'成長':B.avg===A.avg?'維持':'要確認');
 }
-$('#evalTable').addEventListener('change',e=>{const t=e.target;if(t.dataset.f){S.scores[+t.dataset.i][t.dataset.f]=t.value;renderEvalCalc();save()}});
+$('#evalTable').addEventListener('input',e=>{const t=e.target;if(t.tagName==='TEXTAREA'&&t.dataset.f==='memo'){S.scores[+t.dataset.i].memo=t.value;save()}});
+$('#evalTable').addEventListener('change',e=>{const t=e.target;if(t.tagName==='SELECT'&&t.dataset.f){S.scores[+t.dataset.i][t.dataset.f]=t.value;renderEvalCalc();save()}});
 ['player','date1','date2','premise','strengths','improve','summary'].forEach(k=>$('#'+k).addEventListener('input',e=>{S[k]=e.target.value;save()}));
 
 /* ---------- 評価基準 ---------- */
@@ -456,7 +458,7 @@ function buildReport(){
   const A=calcEval('a'),B=calcEval('b'),both=A.gr!=='未評価'&&B.gr!=='未評価';
   const txt=t=>t&&t.trim()?esc(t):'<span class="empty">（未記入）</span>';
   const evalRows=ITEMS.map((it,i)=>{const a=num(S.scores[i].a),b=num(S.scores[i].b);const d=a!=null&&b!=null?b-a:null;
-    return`<tr><td><b>${it[0]}</b></td><td>${it[1]}</td><td class="c">${a??''}</td><td class="c">${b??''}</td><td class="c ${d>0?'up':d<0?'down':''}">${d==null?'':d>0?'+'+d:d}</td></tr>`}).join('');
+    return`<tr><td><b>${it[0]}</b></td><td>${it[1]}</td><td class="c">${a??''}</td><td class="c">${b??''}</td><td class="c ${d>0?'up':d<0?'down':''}">${d==null?'':d>0?'+'+d:d}</td><td style="white-space:pre-wrap">${esc(S.scores[i].memo||'')}</td></tr>`}).join('');
   const mrows=S.matches.map((m,i)=>[i,m]).filter(([i,m])=>Object.values(m).some(v=>String(v).trim()!==''));
   const nrows=S.notes.filter(n=>Object.values(n).some(v=>String(v).trim()!==''));
   const R=$('#report');
@@ -466,10 +468,10 @@ function buildReport(){
   ${S.premise?`<div class="meta">評価の前提：${esc(S.premise)}</div>`:''}
 
   <h2>1. 個人評価</h2>
-  <table><thead><tr><th style="width:110px">評価項目</th><th>評価の観点</th><th style="width:50px">初回</th><th style="width:50px">再評価</th><th style="width:44px">変化</th></tr></thead><tbody>${evalRows}
-   <tr class="total"><td>合計点（${ITEMS.length*10}点満点）</td><td></td><td>${A.sum}</td><td>${B.sum}</td><td>${both?(B.sum-A.sum>0?'+':'')+(B.sum-A.sum):''}</td></tr>
-   <tr class="total"><td>平均点</td><td></td><td>${A.avg==null?'':A.avg.toFixed(1)}</td><td>${B.avg==null?'':B.avg.toFixed(1)}</td><td></td></tr>
-   <tr class="total"><td>総合評価</td><td></td><td>${A.gr}</td><td>${B.gr}</td><td>${both?(B.avg>A.avg?'成長':B.avg===A.avg?'維持':'要確認'):''}</td></tr></tbody></table>
+  <table><thead><tr><th style="width:110px">評価項目</th><th>評価の観点</th><th style="width:50px">初回</th><th style="width:50px">再評価</th><th style="width:44px">変化</th><th style="width:30%">メモ</th></tr></thead><tbody>${evalRows}
+   <tr class="total"><td>合計点（${ITEMS.length*10}点満点）</td><td></td><td>${A.sum}</td><td>${B.sum}</td><td>${both?(B.sum-A.sum>0?'+':'')+(B.sum-A.sum):''}</td><td></td></tr>
+   <tr class="total"><td>平均点</td><td></td><td>${A.avg==null?'':A.avg.toFixed(1)}</td><td>${B.avg==null?'':B.avg.toFixed(1)}</td><td></td><td></td></tr>
+   <tr class="total"><td>総合評価</td><td></td><td>${A.gr}</td><td>${B.gr}</td><td>${both?(B.avg>A.avg?'成長':B.avg===A.avg?'維持':'要確認'):''}</td><td></td></tr></tbody></table>
   <h3>強み</h3><div class="box">${txt(S.strengths)}</div>
   <h3>改善ポイント</h3><div class="box">${txt(S.improve)}</div>
   <h3>総評</h3><div class="box">${txt(S.summary)}</div>
